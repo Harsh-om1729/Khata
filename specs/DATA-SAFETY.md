@@ -15,6 +15,7 @@ Principle: **browser storage is a working copy, not a backup.** A backup exists 
 - The owner has a real account (email or phone OTP).
 - Each phone is registered as a device and approved by the owner. The owner can revoke a lost phone.
 - Staff identity (tile + PIN) is separate from device login and is recorded on every record.
+- A staff member's first PIN login on a phone is checked by the server. The phone then keeps its own salted PBKDF2 hash for offline unlock; the server's `pin_hash` never reaches phones. 5 wrong offline tries lock the PIN screen for 5 minutes.
 - No shared public key that lets anyone write to the database.
 - Access rules in the database: every approved phone can add records, void with a reason, and read shop data. Only the owner can approve or remove phones, manage staff and change the UPI QR. Every record stores the phone and the staff member.
 

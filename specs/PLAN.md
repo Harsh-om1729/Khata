@@ -32,7 +32,7 @@ All tables have `id` (UUID made on the phone), `device_id`, `created_at` (device
 | Table | Key fields | Notes |
 |---|---|---|
 | devices | name, status (pending/approved/revoked), last_seen, unsynced_count | One per phone |
-| staff | name, photo, pin_hash, active | Phones never read or write pin_hash directly (see §5) |
+| staff | name, photo, pin_hash, pin_version, active, removed_at | Phones never read or write pin_hash (see §5). pin_version and removed_at sync to phones |
 | companies | name, picture, archived | Archived, never deleted |
 | items | company_id, name_hi, name_en, size, unit, price, category, picture, needs_review, archived | Natural key: company + name + size. Archived, never deleted; archived items are hidden from billing |
 | price_changes | item_id, old, new, staff_id | Log of every change |
@@ -66,6 +66,12 @@ Rules:
 - Row-level rules: a device can insert records and read the shared data it needs. It cannot update or delete bills or payments, and cannot read other devices' private settings. Only the owner can approve or remove phones, manage staff (add, remove, reset PINs) and change the UPI QR. Everything else is open to every approved phone (SPEC §2.1).
 - **The staff PIN is for attribution and to stop casual mistakes. It is not strong security.** Real protection is device approval and revocation. This is stated in the app's help text for the owner.
 - PIN change goes through a Supabase RPC (security definer) that checks the old PIN on the server before saving the new one. Phones cannot read or update `pin_hash` directly.
+- **PIN unlock:**
+  - A staff member's first login on a phone needs internet. A security-definer RPC checks the PIN on the server; `pin_hash` from the server is never sent to phones.
+  - On success, the phone stores its own salted slow hash of that PIN (PBKDF2 via Web Crypto, random salt per phone and staff member) for offline unlock.
+  - Offline, 5 wrong tries lock the PIN screen for 5 minutes. The lock is saved on the phone, so restarting the app does not clear it.
+  - When a phone syncs and sees a newer `pin_version` or a `removed_at` for a staff member, it deletes its offline hash for them. Their next unlock on that phone needs internet again, or they can no longer unlock if removed.
+  - Bills whose staff member was removed before the bill's time are flagged in the owner's log. Phone clocks can be wrong (§4), so the flag also shows the server time.
 - A UPI QR change creates an alert on the owner's phone.
 - The service key is never in the app. No secrets in the repository.
 - Backups: Supabase automatic backups, plus a scheduled export of all tables to a file the owner can download from the app.
