@@ -11,14 +11,15 @@
 ## 2. Main screens
 1. Staff picker + PIN
 2. Company grid with a **+ Company** tile. Tapping a company opens its item grid (picture tiles, search) with a **+ Item** tile, and a bill strip at the bottom. A "Not in list? Add new" button is always reachable during billing.
-2a. Excel upload / export screen (owner): download template, upload, preview with row errors, confirm
+2a. Excel upload / export screen: download template, upload, preview with row errors, confirm
 2b. UPI QR screen: full-screen shop QR, then a "Payment received" button
 3. Bill review: lines, quantities, prices, customer, payment
 4. Total screen: large digits, spoken total, Save
 5. Udhaar: customer list, balances, add repayment
-6. Owner dashboard (see `SPEC.md` section 6)
+6. Live dashboard for everyone, plus the owner log (see `SPEC.md` section 6)
 7. Price list editor
 8. Sync status / export
+9. Settings: shop name, GSTIN (optional), overdue days. UPI QR upload is owner-only.
 
 ## 3. Voice input
 - Staff speak an order in Hindi/English mix, e.g. "do bori cement, paanch kilo keel".

@@ -32,16 +32,18 @@ All tables have `id` (UUID made on the phone), `device_id`, `created_at` (device
 | Table | Key fields | Notes |
 |---|---|---|
 | devices | name, status (pending/approved/revoked), last_seen, unsynced_count | One per phone |
-| staff | name, photo, pin_hash, active | PIN synced to devices |
-| companies | name, picture | |
-| items | company_id, name_hi, name_en, size, unit, price, category, picture, needs_review | Natural key: company + name + size |
+| staff | name, photo, pin_hash, active | Phones never read or write pin_hash directly (see §5) |
+| companies | name, picture, archived | Archived, never deleted |
+| items | company_id, name_hi, name_en, size, unit, price, category, picture, needs_review, archived | Natural key: company + name + size. Archived, never deleted; archived items are hidden from billing |
 | price_changes | item_id, old, new, staff_id | Log of every change |
 | customers | name, phone | |
 | bills | bill_no, staff_id, customer_id?, total, kind (sale/return), linked_bill_id? | Never edited. Status (active/voided) is not stored; it is computed from `voids` (view `bills_with_status`) |
 | bill_lines | bill_id, item_id, name snapshot, qty, unit price, line total | Snapshot, so later price changes do not alter old bills |
 | payments | bill_id?, customer_id?, method (cash/upi/udhaar), amount, type (sale/repayment/opening) | Every money movement is one row |
-| voids | bill_id, staff_id, reason, approved_by | Bill stays visible |
-| alerts | type, ref_id, seen | Created by the app and by DB rules |
+| voids | bill_id, staff_id, reason | Bill stays visible. Anyone can void (SPEC §2.1) |
+| alerts | type, ref_id, seen | Created by the app and by DB rules (e.g. a UPI QR change) |
+| settings | shop_name, gstin?, upi_qr, overdue_days | One row. Everyone edits, except upi_qr (owner only) |
+| settings_changes | field, old, new, staff_id | Append-only log of every settings change |
 
 Rules:
 - **Udhaar balance** = opening + udhaar sales - repayments, always computed from `payments`. Never stored as an editable number.
@@ -61,8 +63,10 @@ Rules:
 ## 5. Security
 - Owner signs in with email magic link or password. Phone OTP costs per SMS, so avoid it unless wanted.
 - A staff phone shows a short registration code. The owner approves it in the app. The phone then gets its own limited login. The owner can revoke a lost phone at once.
-- Row-level rules: a device can insert records and read the shared data it needs. It cannot update or delete bills or payments, and cannot read other devices' private settings. Only the owner role can approve voids and manage staff and devices.
-- **The staff PIN is for attribution and to stop casual mistakes. It is not strong security**, because the PIN hashes live on the phones. Real protection is device approval and revocation. This is stated in the app's help text for the owner.
+- Row-level rules: a device can insert records and read the shared data it needs. It cannot update or delete bills or payments, and cannot read other devices' private settings. Only the owner can approve or remove phones, manage staff (add, remove, reset PINs) and change the UPI QR. Everything else is open to every approved phone (SPEC §2.1).
+- **The staff PIN is for attribution and to stop casual mistakes. It is not strong security.** Real protection is device approval and revocation. This is stated in the app's help text for the owner.
+- PIN change goes through a Supabase RPC (security definer) that checks the old PIN on the server before saving the new one. Phones cannot read or update `pin_hash` directly.
+- A UPI QR change creates an alert on the owner's phone.
 - The service key is never in the app. No secrets in the repository.
 - Backups: Supabase automatic backups, plus a scheduled export of all tables to a file the owner can download from the app.
 

@@ -16,7 +16,7 @@ Principle: **browser storage is a working copy, not a backup.** A backup exists 
 - Each phone is registered as a device and approved by the owner. The owner can revoke a lost phone.
 - Staff identity (tile + PIN) is separate from device login and is recorded on every record.
 - No shared public key that lets anyone write to the database.
-- Access rules in the database: staff devices can add records and read what they need. Only the owner can void, read everything, and manage staff and devices.
+- Access rules in the database: every approved phone can add records, void with a reason, and read shop data. Only the owner can approve or remove phones, manage staff and change the UPI QR. Every record stores the phone and the staff member.
 
 ## 3. Cloud sync
 - Idempotent: re-sending a record with the same UUID never creates a duplicate.

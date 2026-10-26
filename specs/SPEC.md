@@ -16,10 +16,22 @@ Related files:
 ## 2. Users
 | Role | Count | Device | Can do |
 |---|---|---|---|
-| Staff | 3 | Shared cheap Android phones | Make bills, record udhaar and repayments, change price in a sale |
-| Owner | 1 | Own phone | All staff actions, plus dashboard, price list edits, void bills, manage staff and devices |
+| Staff | 3 | Shared cheap Android phones | Everything in section 2.1 except approving or removing phones |
+| Owner | 1 | Own phone | Everything staff can do, plus approving and removing phones, managing staff and the UPI QR (section 2.1) |
 
 Phones are shared, so every sale records which staff member made it (staff tile + 4-digit PIN, auto-lock). See `DATA-SAFETY.md` for device login.
+
+### 2.1 Permissions
+- Owner and staff have the **same permissions**. Everyone can make bills, record udhaar and payments, change prices, void bills, and change shop and GST settings.
+- **Owner-only exceptions**, each enforced in the database's row-level security (RLS) and covered by tests:
+  - Approving or removing phones.
+  - Staff management: adding or removing staff and resetting PINs.
+  - The UPI QR code. Any QR change shows an alert on the owner's phone.
+- Staff can change their own PIN. The server checks the old PIN before saving the new one.
+- GST settings hold only an optional GSTIN, shown on the bill. No tax rates or tax calculation (GST invoices stay out of scope, section 7).
+- Items and companies are archived, never deleted. Archived items are hidden from billing and can be restored.
+- Every change records which phone and which person made it.
+- The owner can see a log of voids, returns, opening balances, price changes and settings changes.
 
 ## 3. Items and prices
 - About 500 items, many are size variants.
@@ -35,13 +47,14 @@ Both ways must exist.
 3. Add-item form is short: name (Hindi/English), size, unit, price, optional picture. Everything else has a default.
 4. While billing, if staff cannot find an item, a **"Not in list? Add new"** button appears. It adds the item and puts it on the current bill in one step.
 5. New items added by staff are marked "new, check" for the owner to review. The owner can fix the name or price later.
+6. Items and companies can be archived (hidden from billing) and restored. They are never deleted.
 
-**B. Bulk upload from Excel (owner)**
-1. The owner downloads an Excel template (`specs/products-template.xlsx` is the reference copy) with the columns Company, Item name (Hindi), Item name (English), Size, Unit, Price, Category.
-2. The owner fills in or edits it on a computer, then uploads it in the app.
+**B. Bulk upload from Excel**
+1. Anyone (section 2.1) downloads an Excel template (`specs/products-template.xlsx` is the reference copy) with the columns Company, Item name (Hindi), Item name (English), Size, Unit, Price, Category.
+2. They fill in or edit it on a computer, then upload it in the app.
 3. The app shows a preview (how many items will be added, updated or skipped, and any errors by row) before saving anything.
 4. Re-uploading updates existing items instead of duplicating them. Matching is by Company + Item name + Size.
-5. The owner can also export the current price list to Excel, change many prices at once, and upload it again.
+5. Anyone can also export the current price list to Excel, change many prices at once, and upload it again.
 6. Pictures are added separately in the app, because Excel is not used for photos in v1.
 - Price follows the market. Owner and staff can both change the default price.
 - In a sale, staff can override a line's price. It applies to that sale only unless they choose "make this the new default".
@@ -63,25 +76,27 @@ Both ways must exist.
 - Because the app cannot confirm payment, staff or the owner confirm it by looking at the shop's UPI app notification, then tap "Payment received". Only then is the sale marked UPI-paid.
 - The owner's dashboard counts UPI as "marked received by staff", which is a staff entry, not bank proof.
 
-Corrections: a saved bill is never edited or erased. It can only be voided, which needs the owner PIN and a reason. A voided bill stays visible in history.
+Corrections: a saved bill is never edited or erased. It can only be voided, by anyone (section 2.1), with a reason. The void records who did it and shows in the owner's log. A voided bill stays visible in history.
 
-Returns (assumed): a return is a separate negative bill, linked to the original, with owner approval.
+Returns (assumed): a return is a separate negative bill, linked to the original, made by anyone with a reason. Returns show in the owner's log.
 
 ## 5. Udhaar
 - Customer ledger: name, phone (required for udhaar, so the owner can call), running balance.
 - An udhaar sale adds to the balance. A repayment (cash/UPI, any amount, any day) reduces it. Both are separate dated records.
 - The balance is always computed from the records, never typed as a number.
-- Opening balances (assumed): the owner enters each customer's notebook balance once as a dated "opening balance" record.
-- Overdue: no repayment for N days (owner sets N, default 30).
+- Opening balances (assumed): anyone enters each customer's notebook balance once as a dated "opening balance" record. Opening balances show in the owner's log.
+- Overdue: no repayment for N days (N is a shop setting, default 30).
 - No credit limit and no in-app reminders in v1. The overdue list is built for the owner's phone calls: name, tap-to-call, balance, days since last payment.
 
-## 6. Owner dashboard (live)
+## 6. Live dashboard
+Everyone can see the live dashboard (section 2.1).
 - Today's total sales
 - Live sales feed: staff, items, amount, payment method
 - Udhaar: total outstanding, per-customer balances, overdue list
 - Cash and UPI received today, including udhaar repayments
 - Alerts: price changed more than X% from default, bill voided or cancelled, a device has unsynced sales for more than N minutes
 - Always shows "last updated at", so stale data is never mistaken for live data
+- Owner log (owner only): voids, returns, opening balances, price changes and settings changes, each with phone, person and time
 
 ## 7. Out of scope for v1
 - Stock and inventory counts
@@ -97,13 +112,13 @@ Assumed defaults (change any by telling me):
 | Question | Assumed |
 |---|---|
 | WhatsApp bill sharing | Later, not v1 |
-| Returns and refunds | Simple return as owner-approved negative bill |
-| Opening udhaar balances | Owner enters as dated opening records |
+| Returns and refunds | Simple return as a negative bill, by anyone, with a reason |
+| Opening udhaar balances | Entered as dated opening records |
 | Customer phone for udhaar | Required |
-| Who can void a bill | Needs owner PIN |
+| Who can void a bill | Anyone, with a reason; logged for the owner (section 2.1) |
 
 Still open (needs your answer):
-Decided: the shopkeeper (owner) fills the Excel list with items and prices and takes the item pictures. Staff do not do this setup. Pictures are taken with the phone camera inside the app, one item at a time, so item setup can continue gradually after the shop test starts.
+Decided: in practice the shopkeeper (owner) fills the Excel list with items and prices and takes the item pictures; the app allows anyone to (section 2.1). Pictures are taken with the phone camera inside the app, one item at a time, so item setup can continue gradually after the shop test starts.
 
 Also decided: UPI shows the shop's QR code only (section 4.1). Items can be added by the in-app "+" and by Excel upload (section 3.1).
 
