@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { App } from '../../src/App';
 import type { OwnerAuth, SignInResult } from '../../src/auth';
 import { hi } from '../../src/i18n';
+import { APPROVED_ID, fakeDevice, fakeDeviceAdmin } from './fakes';
 
 function fakeAuth(result: SignInResult, savedEmail: string | null = null) {
   let email = savedEmail;
@@ -36,7 +37,7 @@ afterEach(() => cleanup());
 describe('owner login', () => {
   it('signs in, shows the owner screen, and signs out back to home', async () => {
     const auth = fakeAuth('ok');
-    render(<App ownerAuth={auth} />);
+    render(<App services={{ device: fakeDevice({ id: APPROVED_ID, status: 'approved', code: 'A' }), deviceAdmin: fakeDeviceAdmin(), ownerAuth: auth }} />);
     await openLogin();
     fillAndSubmit();
 
@@ -49,7 +50,7 @@ describe('owner login', () => {
   });
 
   it('goes straight to the owner screen when already signed in', async () => {
-    render(<App ownerAuth={fakeAuth('ok', 'owner@shop.in')} />);
+    render(<App services={{ device: fakeDevice({ id: APPROVED_ID, status: 'approved', code: 'A' }), deviceAdmin: fakeDeviceAdmin(), ownerAuth: fakeAuth('ok', 'owner@shop.in') }} />);
     fireEvent.click(screen.getByRole('button', { name: hi.owner }));
     expect(await screen.findByText('owner@shop.in')).toBeTruthy();
   });
@@ -59,7 +60,7 @@ describe('owner login', () => {
     ['offline', hi.errorOffline],
     ['notOwner', hi.errorNotOwner],
   ] as const)('shows a clear message when the result is %s', async (result, message) => {
-    render(<App ownerAuth={fakeAuth(result)} />);
+    render(<App services={{ device: fakeDevice({ id: APPROVED_ID, status: 'approved', code: 'A' }), deviceAdmin: fakeDeviceAdmin(), ownerAuth: fakeAuth(result) }} />);
     await openLogin();
     fillAndSubmit();
     expect((await screen.findByRole('alert')).textContent).toContain(message);
@@ -70,7 +71,7 @@ describe('owner login', () => {
     let finish: (r: SignInResult) => void = () => {};
     const auth = fakeAuth('ok');
     auth.signIn.mockImplementation(() => new Promise<SignInResult>((resolve) => (finish = resolve)));
-    render(<App ownerAuth={auth} />);
+    render(<App services={{ device: fakeDevice({ id: APPROVED_ID, status: 'approved', code: 'A' }), deviceAdmin: fakeDeviceAdmin(), ownerAuth: auth }} />);
     await openLogin();
     fillAndSubmit();
     await waitFor(() => expect(screen.getByRole('button', { name: hi.signingIn })).toHaveProperty('disabled', true));
@@ -81,7 +82,7 @@ describe('owner login', () => {
   });
 
   it('Back returns to home', async () => {
-    render(<App ownerAuth={fakeAuth('ok')} />);
+    render(<App services={{ device: fakeDevice({ id: APPROVED_ID, status: 'approved', code: 'A' }), deviceAdmin: fakeDeviceAdmin(), ownerAuth: fakeAuth('ok') }} />);
     await openLogin();
     fireEvent.click(screen.getByRole('button', { name: hi.back }));
     expect(await screen.findByText(hi.appReady)).toBeTruthy();

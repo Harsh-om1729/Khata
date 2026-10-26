@@ -120,3 +120,87 @@ body {
   background: var(--brand);
   color: var(--bg);
 }
+
+.btn--primary-inline {
+  background: var(--brand);
+  color: var(--bg);
+}
+
+.btn--danger {
+  border-color: var(--danger);
+  background: var(--danger);
+  color: var(--bg);
+}
+
+.device {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 16px 0;
+  padding: 12px;
+  border: 2px solid var(--text);
+  border-radius: 12px;
+  font-weight: 700;
+}
+
+.device--ok {
+  border-color: var(--brand);
+  color: var(--brand);
+}
+
+.device--warn {
+  border-color: var(--danger);
+}
+
+.device__code {
+  width: 100%;
+  font-size: 32px;
+  letter-spacing: 4px;
+  text-align: center;
+}
+
+.phones h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.phone-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0 0 24px;
+  padding: 0;
+  list-style: none;
+}
+
+.phone {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border: 2px solid var(--text);
+  border-radius: 12px;
+}
+
+.phone--pending {
+  border-style: dashed;
+}
+
+.phone__code {
+  font-size: 24px;
+  letter-spacing: 3px;
+}
+
+.phone__status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}

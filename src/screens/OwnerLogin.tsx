@@ -1,6 +1,6 @@
 import { useState } from 'preact/hooks';
 import type { SignInResult } from '../auth';
-import { useOwnerAuth } from '../auth';
+import { useServices } from '../services';
 import { Icon } from '../components/Icon';
 import { useI18n } from '../i18n';
 import type { Messages } from '../i18n';
@@ -13,7 +13,7 @@ const errorText: Record<Exclude<SignInResult, 'ok'>, keyof Messages> = {
 
 export function OwnerLogin({ onBack, onSignedIn }: { onBack: () => void; onSignedIn: (email: string) => void }) {
   const { t } = useI18n();
-  const auth = useOwnerAuth();
+  const { ownerAuth: auth } = useServices();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
