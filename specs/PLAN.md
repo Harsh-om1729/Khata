@@ -37,7 +37,7 @@ All tables have `id` (UUID made on the phone), `device_id`, `created_at` (device
 | items | company_id, name_hi, name_en, size, unit, price, category, picture, needs_review | Natural key: company + name + size |
 | price_changes | item_id, old, new, staff_id | Log of every change |
 | customers | name, phone | |
-| bills | bill_no, staff_id, customer_id?, total, status (active/voided), kind (sale/return), linked_bill_id? | Never edited |
+| bills | bill_no, staff_id, customer_id?, total, kind (sale/return), linked_bill_id? | Never edited. Status (active/voided) is not stored; it is computed from `voids` (view `bills_with_status`) |
 | bill_lines | bill_id, item_id, name snapshot, qty, unit price, line total | Snapshot, so later price changes do not alter old bills |
 | payments | bill_id?, customer_id?, method (cash/upi/udhaar), amount, type (sale/repayment/opening) | Every money movement is one row |
 | voids | bill_id, staff_id, reason, approved_by | Bill stays visible |

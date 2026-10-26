@@ -14,9 +14,14 @@
     "test:e2e": "playwright test",
     "build": "npm run typecheck && vite build",
     "icons": "pwa-assets-generator",
-    "test:e2e:live": "BASE_URL=https://khata.omsuhan2004.workers.dev playwright test"
+    "test:e2e:live": "BASE_URL=https://khata.omsuhan2004.workers.dev playwright test",
+    "test:db": "vitest run --config vitest.db.config.ts",
+    "db:start": "supabase start -x vector,logflare,edge-runtime,imgproxy,supavisor",
+    "db:stop": "supabase stop",
+    "db:reset": "supabase db reset"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.118.0",
     "preact": "^11.0.2"
   },
   "devDependencies": {
@@ -26,6 +31,7 @@
     "@types/node": "^24.19.2",
     "@vite-pwa/assets-generator": "^2.0.0",
     "jsdom": "^29.1.1",
+    "supabase": "^2.122.0",
     "typescript": "^7.0.2",
     "vite": "^8.3.5",
     "vite-plugin-pwa": "^2.0.0",

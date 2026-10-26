@@ -8,7 +8,7 @@ Each task lists the spec it implements and what "done" means.
 - [x] M0-2 PWA shell: manifest, icons, service worker, installable, works offline after first load. *PLAN §1–2.* *Done:* installs on an Android phone and opens in airplane mode. Includes a Playwright E2E test: load online, go offline, reload, the app still opens.
 - [x] M0-2b Deploy to Cloudflare Workers (static assets). Connect the GitHub repo, build command `npm run build`, output `dist`, set `NODE_VERSION=24`. Every push to main deploys; non-production branches and pull requests get preview URLs. *Done:* the HTTPS URL opens on a real Android phone and the app installs from it. No secrets in Worker settings until the Supabase tasks.
 - [x] M0-3 i18n setup with Hindi default and English. *UI-VOICE §1.* *Done:* a test screen switches language.
-- [ ] M0-4 Supabase project, schema migrations for all tables, row-level security. *PLAN §3, §5.* *Done:* a device cannot update or delete bills or payments (tested).
+- [x] M0-4 Supabase project, schema migrations for all tables, row-level security. *PLAN §3, §5.* *Done:* a device cannot update or delete bills or payments (tested).
 - [ ] M0-5 Owner login (email). *PLAN §5.* *Done:* the owner signs in and out.
 - [ ] M0-6 Device registration and owner approval/revoke. *DATA-SAFETY §2.* *Done:* a new phone is approved, then revoked and loses access.
 - [ ] M0-7 Staff tiles + PIN + auto-lock; staff recorded on records. *SPEC §2.* *Done:* the active staff ID is attached to a test record.
