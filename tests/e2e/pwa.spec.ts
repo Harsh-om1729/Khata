@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { t } from '../../src/i18n';
+import { hi as t } from '../../src/i18n';
 
 interface ManifestIcon {
   src: string;
