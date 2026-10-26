@@ -204,3 +204,128 @@ body {
   flex-wrap: wrap;
   gap: 8px;
 }
+
+.active-staff {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px;
+  border: 2px solid var(--brand);
+  border-radius: 12px;
+}
+
+.active-staff span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-height: 120px;
+  padding: 12px;
+  border: 2px solid var(--brand);
+  border-radius: 16px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  font-weight: 700;
+}
+
+.tile__avatar {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--brand);
+  color: var(--bg);
+  font-size: 28px;
+}
+
+.tile__badge {
+  padding: 0 8px;
+  border: 1px solid var(--brand);
+  border-radius: 8px;
+  color: var(--brand);
+  font-size: 14px;
+}
+
+.pinpad {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.pinpad .bar {
+  align-self: stretch;
+}
+
+.pinpad__name {
+  margin: 8px 0 0;
+}
+
+.pinpad__dots {
+  display: flex;
+  gap: 16px;
+  margin: 8px 0;
+}
+
+.dot {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--text);
+  border-radius: 50%;
+}
+
+.dot--filled {
+  background: var(--text);
+}
+
+.pinpad__keys {
+  display: grid;
+  grid-template-columns: repeat(3, 72px);
+  gap: 12px;
+}
+
+.key {
+  display: grid;
+  place-items: center;
+  height: 72px;
+  border: 2px solid var(--text);
+  border-radius: 50%;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.key:disabled {
+  opacity: 0.4;
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  font-weight: 700;
+}
+
+.check input {
+  width: 28px;
+  height: 28px;
+}

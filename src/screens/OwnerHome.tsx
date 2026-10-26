@@ -3,6 +3,7 @@ import { Icon } from '../components/Icon';
 import { useI18n } from '../i18n';
 import { useServices } from '../services';
 import { OwnerDevices } from './OwnerDevices';
+import { OwnerStaff } from './OwnerStaff';
 
 export function OwnerHome({ email, onSignedOut, onBack }: { email: string; onSignedOut: () => void; onBack: () => void }) {
   const { t } = useI18n();
@@ -28,6 +29,7 @@ export function OwnerHome({ email, onSignedOut, onBack }: { email: string; onSig
         {t.signedInAs} <strong>{email}</strong>
       </p>
       <OwnerDevices />
+      <OwnerStaff />
       <button type="button" class="btn" onClick={signOut} disabled={busy}>
         <Icon name="logout" />
         {t.signOut}

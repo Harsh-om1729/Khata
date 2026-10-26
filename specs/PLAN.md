@@ -69,7 +69,8 @@ Rules:
 - **PIN unlock:**
   - A staff member's first login on a phone needs internet. A security-definer RPC checks the PIN on the server; `pin_hash` from the server is never sent to phones.
   - On success, the phone stores its own salted slow hash of that PIN (PBKDF2 via Web Crypto, random salt per phone and staff member) for offline unlock.
-  - Offline, 5 wrong tries lock the PIN screen for 5 minutes. The lock is saved on the phone, so restarting the app does not clear it.
+  - Offline, 5 wrong tries lock the PIN screen for 5 minutes. The lock is saved on the phone, so restarting the app does not clear it. Changing the phone's clock can shorten it; accepted, since the PIN is not strong security.
+  - Accepted risk: there is no server-side limit on wrong PINs. An approved phone could keep guessing a 4-digit PIN online (PIN login and own-PIN change). Phone approval and revoke are the real protection.
   - When a phone syncs and sees a newer `pin_version` or a `removed_at` for a staff member, it deletes its offline hash for them. Their next unlock on that phone needs internet again, or they can no longer unlock if removed.
   - Bills whose staff member was removed before the bill's time are flagged in the owner's log. Phone clocks can be wrong (§4), so the flag also shows the server time.
 - A UPI QR change creates an alert on the owner's phone.

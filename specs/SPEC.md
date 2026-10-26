@@ -19,7 +19,7 @@ Related files:
 | Staff | 3 | Shared cheap Android phones | Everything in section 2.1 except approving or removing phones |
 | Owner | 1 | Own phone | Everything staff can do, plus approving and removing phones, managing staff and the UPI QR (section 2.1) |
 
-Phones are shared, so every sale records which staff member made it (staff tile + 4-digit PIN, auto-lock). See `DATA-SAFETY.md` for device login.
+Phones are shared, so every sale records which staff member made it (staff tile + 4-digit PIN). Auto-lock: the phone goes back to the staff tiles after every saved bill, and whenever the app is closed. See `DATA-SAFETY.md` for device login.
 
 ### 2.1 Permissions
 - Owner and staff have the **same permissions**. Everyone can make bills, record udhaar and payments, change prices, void bills, and change shop and GST settings.
