@@ -4,7 +4,7 @@ Khata is an offline-first billing PWA for a hardware shop in Bihar. Three staff 
 Core Idea is make for the shopkeeper who dont have much knowledge of computer and smartphone.
 
 ## Tech stack
-TypeScript, Vite, Preact, Dexie (IndexedDB), vite-plugin-pwa (Workbox), Supabase (Postgres, Auth, Realtime, Storage), Cloudflare Pages, SheetJS (Excel), Vitest, Playwright.
+TypeScript, Vite, Preact, Dexie (IndexedDB), vite-plugin-pwa (Workbox), Supabase (Postgres, Auth, Realtime, Storage), Cloudflare Workers (static assets), SheetJS (Excel), Vitest, Playwright.
 
 ## Folder structure
 Planned. Folders are created as tasks need them, starting at M0.

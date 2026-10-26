@@ -9,7 +9,7 @@ Turns `SPEC.md`, `DATA-SAFETY.md` and `UI-VOICE.md` into build decisions. No cod
 | Local DB | IndexedDB through Dexie | Reliable, queryable, works offline |
 | Offline | Service worker via vite-plugin-pwa (Workbox) | Installable app, cached screens and images |
 | Cloud | Supabase (Postgres, Auth, Realtime, Storage) | One service gives login, row-level security, live updates, daily backups |
-| Hosting | Cloudflare Pages (free tier) | Fast static hosting, HTTPS (required for PWA, camera, mic) |
+| Hosting | Cloudflare Workers (static assets, free tier) | Fast static hosting, HTTPS (required for PWA, camera, mic) |
 | Excel | SheetJS in the browser | Parse and export `.xlsx` with no server |
 | Voice | Browser SpeechRecognition (hi-IN) and SpeechSynthesis | No cost; limits in `UI-VOICE.md` |
 | Tests | Vitest for logic, Playwright for flows, manual checklist on real phones | |
@@ -93,7 +93,7 @@ Voice is deliberately after the money-critical parts (M2 to M5). If voice proves
 | Free-tier limits | Pause or lost backups | Check limits at M0, plan for a low-cost paid tier |
 
 ## 8. Decisions needed from you
-1. **Stack OK?** (Preact + Dexie + Supabase + Cloudflare Pages), or do you prefer something else?
+1. **Stack OK?** (Preact + Dexie + Supabase + Cloudflare Workers (static assets)), or do you prefer something else?
 2. **Owner login:** email magic link / password (recommended), or phone OTP?
 3. **Who builds it?** You, a developer, or me step by step? This changes how detailed the next documents should be.
 4. **Do you have the shop's UPI QR image, and a few staff and phone models for M6 testing?**
