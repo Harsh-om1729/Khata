@@ -5,7 +5,7 @@ Each task lists the spec it implements and what "done" means.
 
 ## M0 Setup
 - [x] M0-1 Project scaffold: Vite + Preact + TypeScript strict, Vitest, Playwright, and the npm scripts in CLAUDE.md. *Done:* `npm run dev`, `npm test`, `npm run build` all run.
-- [ ] M0-2 PWA shell: manifest, icons, service worker, installable, works offline after first load. *PLAN §1–2.* *Done:* installs on an Android phone and opens in airplane mode. Includes a Playwright E2E test: load online, go offline, reload, the app still opens.
+- [x] M0-2 PWA shell: manifest, icons, service worker, installable, works offline after first load. *PLAN §1–2.* *Done:* installs on an Android phone and opens in airplane mode. Includes a Playwright E2E test: load online, go offline, reload, the app still opens.
 - [ ] M0-2b Deploy to Cloudflare Pages. Connect the GitHub repo, build command `npm run build`, output `dist`, set `NODE_VERSION=24`. Every push to main deploys; pull requests get preview URLs. *Done:* the HTTPS URL opens on a real Android phone and the app installs from it. No secrets in Pages settings until the Supabase tasks.
 - [ ] M0-3 i18n setup with Hindi default and English. *UI-VOICE §1.* *Done:* a test screen switches language.
 - [ ] M0-4 Supabase project, schema migrations for all tables, row-level security. *PLAN §3, §5.* *Done:* a device cannot update or delete bills or payments (tested).
