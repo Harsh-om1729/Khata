@@ -51,7 +51,13 @@ test('a new phone shows a code, then shows approved after the owner approves it'
   await page.getByRole('button', { name: hi.checkAgain }).click();
   await expect(page.getByText(`${hi.deviceApproved} (A)`)).toBeVisible();
 
-  // After a restart offline, it still shows the last known status.
+  // After a restart offline, it still shows the last known status. The service worker only
+  // serves the page once it controls it, which needs one online reload after installing.
+  await page.evaluate(async () => {
+    await navigator.serviceWorker.ready;
+  });
+  await page.reload();
+  await expect.poll(() => page.evaluate(() => navigator.serviceWorker.controller !== null)).toBe(true);
   await page.context().setOffline(true);
   await page.reload();
   await expect(page.getByText(`${hi.deviceApproved} (A)`)).toBeVisible();
