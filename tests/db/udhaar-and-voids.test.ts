@@ -27,8 +27,7 @@ describe('udhaar balance', () => {
     const voided = await insertBill(phone, shop, 40_000, { customer_id: customer });
     await pay({ bill_id: voided.id, customer_id: customer, method: 'udhaar', type: 'sale', amount_paise: 40_000 });
     mustOk(await phone.client.from('voids').insert({
-      id: id(), device_id: phone.deviceId, bill_id: voided.id, staff_id: shop.staffId,
-      approved_by: shop.ownerStaffId, reason: 'wrong customer', created_at: now(),
+      id: id(), device_id: phone.deviceId, bill_id: voided.id, staff_id: shop.staffId, reason: 'wrong customer', created_at: now(),
     }));
 
     const row = must(await phone.client.from('customer_balances').select('balance_paise').eq('customer_id', customer).single());
@@ -56,27 +55,32 @@ describe('voids', () => {
   it('a voided bill stays visible with status voided', async () => {
     const bill = await insertBill(phone, shop, 1_000);
     mustOk(await phone.client.from('voids').insert({
-      id: id(), device_id: phone.deviceId, bill_id: bill.id, staff_id: shop.staffId,
-      approved_by: shop.ownerStaffId, reason: 'mistake', created_at: now(),
+      id: id(), device_id: phone.deviceId, bill_id: bill.id, staff_id: shop.staffId, reason: 'mistake', created_at: now(),
     }));
     const row = must(await phone.client.from('bills_with_status').select('status').eq('id', bill.id).single());
     expect(row.status).toBe('voided');
   });
 
-  it('needs the owner to approve', async () => {
+  it('any approved phone can void, without the owner (SPEC §2.1)', async () => {
     const bill = await insertBill(phone, shop, 1_000);
     const { error } = await phone.client.from('voids').insert({
-      id: id(), device_id: phone.deviceId, bill_id: bill.id, staff_id: shop.staffId,
-      approved_by: shop.staffId, reason: 'mistake', created_at: now(),
+      id: id(), device_id: phone.deviceId, bill_id: bill.id, staff_id: shop.staffId, reason: 'mistake', created_at: now(),
     });
-    expect(error?.message).toContain('owner');
+    expect(error).toBeNull();
+  });
+
+  it('a void needs a reason', async () => {
+    const bill = await insertBill(phone, shop, 1_000);
+    const { error } = await phone.client.from('voids').insert({
+      id: id(), device_id: phone.deviceId, bill_id: bill.id, staff_id: shop.staffId, reason: '  ', created_at: now(),
+    });
+    expect(error?.code).toBe('23514');
   });
 
   it('a bill can be voided only once', async () => {
     const bill = await insertBill(phone, shop, 1_000);
     const voidRow = () => ({
-      id: id(), device_id: phone.deviceId, bill_id: bill.id, staff_id: shop.staffId,
-      approved_by: shop.ownerStaffId, reason: 'mistake', created_at: now(),
+      id: id(), device_id: phone.deviceId, bill_id: bill.id, staff_id: shop.staffId, reason: 'mistake', created_at: now(),
     });
     mustOk(await phone.client.from('voids').insert(voidRow()));
     expect((await phone.client.from('voids').insert(voidRow())).error?.code).toBe('23505');

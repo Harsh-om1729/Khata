@@ -10,9 +10,9 @@ Each task lists the spec it implements and what "done" means.
 - [x] M0-3 i18n setup with Hindi default and English. *UI-VOICE §1.* *Done:* a test screen switches language.
 - [x] M0-4 Supabase project, schema migrations for all tables, row-level security. *PLAN §3, §5.* *Done:* a device cannot update or delete bills or payments (tested).
 - [x] M0-5 Owner login (email). *PLAN §5.* *Done:* the owner signs in and out.
-- [ ] M0-6 Device registration and owner approval/revoke. *DATA-SAFETY §2.* *Done:* a new phone is approved, then revoked and loses access.
-- [ ] M0-6b Align database rules with SPEC §2.1: anyone can void (remove `approved_by` and its trigger); `settings` + `settings_changes` tables; UPI QR owner-only with an alert on change; staff management owner-only; PIN change only through a security-definer RPC that checks the old PIN, with no direct read or update of `pin_hash`; items and companies archived instead of deleted. *Done:* RLS tests prove the owner-only parts are owner-only and everything else is open to approved phones.
-- [ ] M0-7 Staff tiles + PIN + auto-lock; staff recorded on records. *SPEC §2.* *Done:* the active staff ID is attached to a test record.
+- [x] M0-6 Device registration and owner approval/revoke. *DATA-SAFETY §2.* *Done:* a new phone is approved, then revoked and loses access.
+- [x] M0-6b Align database rules with SPEC §2.1: anyone can void (remove `approved_by` and its trigger); `settings` + `settings_changes` tables; UPI QR owner-only with an alert on change; staff management owner-only; PIN change only through a security-definer RPC that checks the old PIN, with no direct read or update of `pin_hash`; items and companies archived instead of deleted. *Done:* RLS tests prove the owner-only parts are owner-only and everything else is open to approved phones.
+- [ ] M0-7 Staff tiles + PIN + auto-lock; staff recorded on records. First login on a phone is checked by the server RPC; the phone then stores its own PBKDF2 hash for offline unlock; 5 wrong offline tries lock the PIN screen for 5 minutes; a newer `pin_version` or a removal clears the phone's hash on sync. *SPEC §2, §2.1; PLAN §5.* *Done:* the active staff ID is attached to a test record. Tests: offline unlock works after one online login; a new staff member cannot unlock offline on a phone they never used online; the lockout works; a PIN change or removal synced to the phone clears offline unlock.
 
 ## M1 Items
 - [ ] M1-1 Dexie schema for companies and items, with UUIDs and the outbox table. *PLAN §3–4.*
@@ -51,7 +51,7 @@ Each task lists the spec it implements and what "done" means.
 - [ ] M5-1 Today's totals and cash/UPI received including repayments. *SPEC §6.*
 - [ ] M5-2 Live sales feed over Realtime. *Done:* a sale shows on the owner's phone within 10 seconds.
 - [ ] M5-3 Udhaar totals and per-customer balances.
-- [ ] M5-4 Alerts: unusual price change, void, device silent, UPI QR change. Show "last updated at". Owner log of voids, returns, opening balances, price changes and settings changes.
+- [ ] M5-4 Alerts: unusual price change, void, device silent, UPI QR change. Show "last updated at". Owner log of voids, returns, opening balances, price changes and settings changes, plus bills made by a removed staff member after the removal time.
 - [ ] M5-5 Void flow by anyone with a reason; simple return as a negative bill. *SPEC §4.*
 - [ ] M5-6 Scheduled data export the owner can download. *PLAN §5.*
 
