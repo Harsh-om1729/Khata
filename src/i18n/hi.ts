@@ -22,6 +22,7 @@ export const hi = {
   deviceRevoked: 'यह फ़ोन बंद कर दिया गया है। मालिक से बात करें।',
   deviceNeedInternet: 'पहली बार इंटरनेट चाहिए। इंटरनेट चालू करें।',
   checkAgain: 'फिर से जाँचें',
+  deviceRefused: 'यह फ़ोन जुड़ नहीं पाया। मालिक को बताएँ।',
   phones: 'फ़ोन',
   phonesEmpty: 'अभी कोई फ़ोन नहीं',
   phonesLoadError: 'फ़ोन की सूची नहीं मिली। इंटरनेट जाँचें।',

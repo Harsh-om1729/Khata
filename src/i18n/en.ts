@@ -24,6 +24,7 @@ export const en: Messages = {
   deviceRevoked: 'This phone has been turned off. Talk to the owner.',
   deviceNeedInternet: 'Internet needed the first time. Turn on internet.',
   checkAgain: 'Check again',
+  deviceRefused: 'This phone could not be registered. Tell the owner.',
   phones: 'Phones',
   phonesEmpty: 'No phones yet',
   phonesLoadError: 'Could not load the phones. Check internet.',

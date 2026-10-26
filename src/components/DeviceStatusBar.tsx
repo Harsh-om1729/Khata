@@ -2,12 +2,13 @@ import { useEffect, useState } from 'preact/hooks';
 import { useI18n } from '../i18n';
 import { useServices } from '../services';
 import { registrationCode } from '../sync/device-code';
+import { RegistrationRefusedError } from '../sync/device-registration';
 import type { DeviceInfo } from '../sync/device-registration';
 import { Icon } from './Icon';
 
 const POLL_MS = 30_000;
 
-type View = { kind: 'checking' } | { kind: 'needInternet' } | { kind: 'known'; info: DeviceInfo };
+type View = { kind: 'checking' } | { kind: 'needInternet' } | { kind: 'refused' } | { kind: 'known'; info: DeviceInfo };
 
 export function DeviceStatusBar() {
   const { t } = useI18n();
@@ -22,9 +23,11 @@ export function DeviceStatusBar() {
     setBusy(true);
     try {
       setView({ kind: 'known', info: await device.refresh() });
-    } catch {
-      // Offline or server unreachable: keep the last known status if there is one.
-      setView((current) => (current.kind === 'known' ? current : { kind: 'needInternet' }));
+    } catch (error) {
+      // Keep the last known status if there is one; otherwise say whether it is the internet
+      // or the server, so staff do not keep toggling mobile data for a server-side problem.
+      const fallback: View = error instanceof RegistrationRefusedError ? { kind: 'refused' } : { kind: 'needInternet' };
+      setView((current) => (current.kind === 'known' ? current : fallback));
     } finally {
       setBusy(false);
     }
@@ -53,6 +56,15 @@ export function DeviceStatusBar() {
       <section class="device" role="status">
         <Icon name="clock" />
         <span>{t.deviceChecking}</span>
+      </section>
+    );
+  }
+  if (view.kind === 'refused') {
+    return (
+      <section class="device device--warn" role="status">
+        <Icon name="block" />
+        <span>{t.deviceRefused}</span>
+        {checkAgain}
       </section>
     );
   }

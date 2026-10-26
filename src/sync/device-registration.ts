@@ -25,6 +25,29 @@ export interface KeyValueStore {
 
 const CACHE_KEY = 'khata.device';
 
+/** The server answered but said no (e.g. anonymous sign-ins switched off); internet is fine. */
+export class RegistrationRefusedError extends Error {
+  constructor(cause: unknown) {
+    super('the server refused to register this phone', { cause });
+    this.name = 'RegistrationRefusedError';
+  }
+}
+
+interface ServerErrorLike {
+  name?: string;
+  status?: number;
+  code?: string;
+}
+
+// Auth errors carry an HTTP status (0 when the request never arrived); database errors carry a
+// Postgres code (empty when the request never arrived). Anything else is treated as offline.
+function asRegistrationError(error: ServerErrorLike): Error {
+  const authRefused = typeof error.status === 'number' && error.status >= 400;
+  const dbRefused = typeof error.code === 'string' && error.code !== '' && error.status === undefined;
+  if (authRefused || dbRefused) return new RegistrationRefusedError(error);
+  return error instanceof Error ? error : new Error('offline', { cause: error });
+}
+
 export const browserStore: KeyValueStore = {
   get(key) {
     try {
@@ -70,7 +93,7 @@ export function createDeviceRegistration(
   const fetchOwnRow = async (supabase: SupabaseClient): Promise<DeviceInfo | null> => {
     // Row-level security returns only this phone's own row.
     const { data, error } = await supabase.from('devices').select('id, status, code').limit(1);
-    if (error) throw error;
+    if (error) throw asRegistrationError(error);
     const row: unknown = data[0];
     return isDeviceInfo(row) ? row : null;
   };
@@ -84,7 +107,7 @@ export function createDeviceRegistration(
       let userId = session.session?.user.id;
       if (!userId) {
         const { data, error } = await supabase.auth.signInAnonymously();
-        if (error) throw error;
+        if (error) throw asRegistrationError(error);
         userId = data.user?.id;
         if (!userId) throw new Error('anonymous sign-in returned no user');
       }
@@ -98,7 +121,7 @@ export function createDeviceRegistration(
           name: registrationCode(id),
           created_at: new Date().toISOString(),
         });
-        if (error) throw error;
+        if (error) throw asRegistrationError(error);
         info = { id, status: 'pending', code: null };
       }
       store.set(CACHE_KEY, JSON.stringify(info));

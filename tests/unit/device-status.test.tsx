@@ -2,6 +2,7 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { App } from '../../src/App';
 import { hi } from '../../src/i18n';
+import { RegistrationRefusedError } from '../../src/sync/device-registration';
 import { APPROVED_ID, fakeDevice, fakeDeviceAdmin, PENDING_ID } from './fakes';
 import type { FakeDevice } from './fakes';
 
@@ -39,6 +40,12 @@ describe('phone status on the home screen', () => {
   it('offline on first ever start asks for internet', async () => {
     renderWith(fakeDevice(new Error('offline')));
     expect(await screen.findByText(hi.deviceNeedInternet)).toBeTruthy();
+  });
+
+  it('a server refusal says to tell the owner, not to turn on internet', async () => {
+    renderWith(fakeDevice(new RegistrationRefusedError({ status: 422 })));
+    expect(await screen.findByText(hi.deviceRefused)).toBeTruthy();
+    expect(screen.queryByText(hi.deviceNeedInternet)).toBeNull();
   });
 
   it('offline later keeps showing the last known status', async () => {
