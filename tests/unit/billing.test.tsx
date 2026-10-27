@@ -429,3 +429,16 @@ describe('on-screen bill and bill history (M2-8)', () => {
     expect(await screen.findByText(hi.billHistoryEmpty)).toBeTruthy();
   });
 });
+
+describe('after a lock (found by the M2 acceptance run)', () => {
+  it('the next person starts on billing even if the last one locked inside "Items and prices"', async () => {
+    await unlock();
+    fireEvent.click(screen.getByRole('button', { name: hi.manageItems }));
+    await screen.findByRole('heading', { name: hi.manageItems });
+    fireEvent.click(screen.getByRole('button', { name: hi.lockNow }));
+    fireEvent.click(await screen.findByRole('button', { name: /Ramesh/ }));
+    for (const digit of '2468') fireEvent.click(screen.getByRole('button', { name: digit }));
+    expect(await screen.findByTestId('bill-total')).toBeTruthy();
+    expect(screen.queryByRole('heading', { name: hi.manageItems })).toBeNull();
+  });
+});

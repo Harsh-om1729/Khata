@@ -23,6 +23,9 @@ export function Home({ onOwner }: { onOwner: () => void }) {
     if (session.active) {
       setSaved(null);
       setShowing(false);
+    } else {
+      // Whoever unlocks next always starts on billing, never on someone else's screen.
+      setManaging(false);
     }
   }, [session.active]);
 
