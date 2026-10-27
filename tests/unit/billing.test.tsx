@@ -24,12 +24,12 @@ afterEach(async () => {
   await db.delete();
 });
 
-async function unlock() {
+async function unlock(code: string | null = 'A') {
   render(
     <App
       services={{
         db,
-        device: { ...fakeDevice({ id: APPROVED_ID, status: 'approved', code: 'A' }), cached: () => ({ id: APPROVED_ID, status: 'approved' as const, code: 'A' }) },
+        device: { ...fakeDevice({ id: APPROVED_ID, status: 'approved', code }), cached: () => ({ id: APPROVED_ID, status: 'approved' as const, code }) },
         deviceAdmin: fakeDeviceAdmin(),
         staffDirectory: { cached: () => [ramesh], refresh: async () => [ramesh] },
         staffLogin: { login: vi.fn(async () => ({ kind: 'ok' as const })), lockedUntil: () => null },
@@ -205,5 +205,80 @@ describe('bill review: quantity, price for this sale, new default (M2-3)', () =>
     await tap('25kg');
     expect(count()).toBe(`2 ${hi.billItems}`);
     expect(screen.getByRole('heading', { name: 'Ultratech' })).toBeTruthy();
+  });
+});
+
+describe('cash payment and save (M2-5)', () => {
+  async function toPayScreen(code: string | null = 'A') {
+    await unlock(code);
+    fireEvent.click(await screen.findByRole('button', { name: /Ultratech/ }));
+    await tap('50kg');
+    await tap('50kg');
+    fireEvent.click(screen.getByRole('button', { name: hi.seeBill }));
+    fireEvent.click(await screen.findByRole('button', { name: hi.takePayment }));
+    await screen.findByTestId('pay-total');
+  }
+
+  it('the pay screen shows the total in large digits with cash, and nothing else to distract', async () => {
+    await toPayScreen();
+    expect(screen.getByTestId('pay-total').textContent).toBe('₹760');
+    expect((screen.getByLabelText(hi.payCash) as HTMLInputElement).checked).toBe(true);
+    expect(screen.queryByTestId('bill-total')).toBeNull();
+    expect(screen.queryByPlaceholderText(hi.search)).toBeNull();
+  });
+
+  it('saving stores the bill, locks the phone, and says it is saved on this phone with its number and total', async () => {
+    await toPayScreen();
+    fireEvent.click(screen.getByRole('button', { name: hi.saveBill }));
+
+    const notice = await screen.findByTestId('saved-notice');
+    expect(notice.textContent).toContain(hi.billSavedOnPhone);
+    expect(notice.textContent).toMatch(/A-\d{6}-001/);
+    expect(notice.textContent).toContain('₹760');
+    expect(screen.getByText(hi.staffChoose)).toBeTruthy();
+    expect(screen.queryByTestId('bill-total')).toBeNull();
+
+    const [bill] = await db.bills.toArray();
+    expect(bill).toMatchObject({ total_paise: 76_000, staff_id: 'staff-ramesh', device_id: APPROVED_ID });
+    expect(await db.payments.toArray()).toMatchObject([{ bill_id: bill?.id, method: 'cash', amount_paise: 76_000 }]);
+  });
+
+  it('a double tap on Save makes only one bill', async () => {
+    await toPayScreen();
+    const save = screen.getByRole('button', { name: hi.saveBill });
+    fireEvent.click(save);
+    fireEvent.click(save);
+    fireEvent.click(save);
+    await screen.findByTestId('saved-notice');
+    expect(await db.bills.count()).toBe(1);
+    expect(await db.payments.count()).toBe(1);
+  });
+
+  it('after the next unlock the notice is gone and the bill is empty', async () => {
+    await toPayScreen();
+    fireEvent.click(screen.getByRole('button', { name: hi.saveBill }));
+    await screen.findByTestId('saved-notice');
+    fireEvent.click(screen.getByRole('button', { name: /Ramesh/ }));
+    for (const digit of '2468') fireEvent.click(screen.getByRole('button', { name: digit }));
+    await screen.findByText(hi.companies);
+    expect(screen.queryByTestId('saved-notice')).toBeNull();
+    expect(total()).toBe('₹0');
+  });
+
+  it('"back to bill" keeps the bill as it was', async () => {
+    await toPayScreen();
+    fireEvent.click(screen.getByRole('button', { name: hi.backToBill }));
+    expect(await screen.findByTestId('bill-line')).toBeTruthy();
+    expect(total()).toBe('₹760');
+    expect(await db.bills.count()).toBe(0);
+  });
+
+  it('a phone with no bill letter cannot save, says why, and keeps the bill to try again', async () => {
+    await toPayScreen(null);
+    fireEvent.click(screen.getByRole('button', { name: hi.saveBill }));
+    expect((await screen.findByRole('alert')).textContent).toContain(hi.errorNoLetter);
+    expect(await db.bills.count()).toBe(0);
+    expect((screen.getByRole('button', { name: hi.saveBill }) as HTMLButtonElement).disabled).toBe(false);
+    expect(screen.getByTestId('pay-total').textContent).toBe('₹760');
   });
 });

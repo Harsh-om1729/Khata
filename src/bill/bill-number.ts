@@ -2,6 +2,13 @@ import type { KhataDb } from '../db';
 
 const CODE = /^[A-Z][A-Z0-9]{0,2}$/; // same rule as devices.code on the server
 
+export class NoBillLetterError extends Error {
+  constructor() {
+    super('this phone has no bill letter yet');
+    this.name = 'NoBillLetterError';
+  }
+}
+
 /** "261027" for 27 Oct 2026, from the phone's own date. */
 export function billDay(now: Date): string {
   return [now.getFullYear() % 100, now.getMonth() + 1, now.getDate()].map((n) => String(n).padStart(2, '0')).join('');
@@ -18,7 +25,7 @@ export function formatBillNo(code: string, day: string, n: number): string {
  * clock goes back to an earlier day, numbering carries on instead of repeating.
  */
 export async function nextBillNo(db: KhataDb, code: string | null, now = new Date()): Promise<string> {
-  if (!code || !CODE.test(code)) throw new Error('this phone has no bill letter yet');
+  if (!code || !CODE.test(code)) throw new NoBillLetterError();
   const day = billDay(now);
   return db.transaction('rw', db.bill_counters, async () => {
     const n = ((await db.bill_counters.get(day))?.last ?? 0) + 1;

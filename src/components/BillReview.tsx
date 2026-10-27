@@ -10,9 +10,10 @@ interface Props {
   onPrice: (lineId: string, pricePaise: number) => void;
   onRemove: (lineId: string) => void;
   onMakeDefault: (lineId: string) => Promise<void>;
+  onPay: () => void;
 }
 
-export function BillReview({ bill, onBack, onQty, onPrice, onRemove, onMakeDefault }: Props) {
+export function BillReview({ bill, onBack, onQty, onPrice, onRemove, onMakeDefault, onPay }: Props) {
   const { t } = useI18n();
   return (
     <section class="catalog">
@@ -36,6 +37,12 @@ export function BillReview({ bill, onBack, onQty, onPrice, onRemove, onMakeDefau
           />
         ))}
       </ul>
+      {bill.lines.length > 0 && (
+        <button type="button" class="btn btn--primary btn--big" onClick={onPay}>
+          <Icon name="cash" />
+          {t.takePayment}
+        </button>
+      )}
     </section>
   );
 }

@@ -46,7 +46,7 @@ export async function createCompany(db: KhataDb, author: Author, input: NewCompa
   if (name.length < 1 || name.length > 80) throw new Error('company name must be 1 to 80 characters');
   const stamp = stampRecord(author.staff, author.deviceId);
   const row: CompanyRow = { ...stamp, server_at: null, name, picture: input.picture ?? null, archived: false };
-  await db.transaction('rw', db.catalogTables(), async () => {
+  await db.transaction('rw', db.allTables(), async () => {
     const lower = name.toLowerCase();
     if (await db.companies.filter((c) => c.name.toLowerCase() === lower).count()) throw new DuplicateError('company');
     await putWithOutbox(db, [{ table: 'companies', row }]);
@@ -77,7 +77,7 @@ export async function createItem(db: KhataDb, author: Author, input: NewItem, ph
     needs_review: !author.staff?.is_owner,
     archived: false,
   };
-  await db.transaction('rw', db.catalogTables(), async () => {
+  await db.transaction('rw', db.allTables(), async () => {
     if (!(await db.companies.get(row.company_id))) throw new Error('company not found');
     const key = itemKey(row);
     const siblings = await db.items.where('company_id').equals(row.company_id).toArray();
@@ -102,7 +102,7 @@ async function pictureRow(blob: Blob, created_at: string): Promise<PictureRow> {
 /** Gives an item a new photo. Photos are not money records, so the old one is dropped to save phone space. */
 export async function setItemPicture(db: KhataDb, itemId: string, photo: Blob, now = new Date()): Promise<ItemRow> {
   const picture = await pictureRow(photo, now.toISOString());
-  return db.transaction('rw', db.catalogTables(), async () => {
+  return db.transaction('rw', db.allTables(), async () => {
     const item = await db.items.get(itemId);
     if (!item) throw new Error('item not found');
     const row: ItemRow = { ...item, picture: picture.path, server_at: null };
@@ -114,7 +114,7 @@ export async function setItemPicture(db: KhataDb, itemId: string, photo: Blob, n
 
 /** Archive hides a company or item from billing; it is never deleted (SPEC §3.1A.6). */
 export async function setArchived(db: KhataDb, table: 'companies' | 'items', id: string, archived: boolean): Promise<void> {
-  await db.transaction('rw', db.catalogTables(), async () => {
+  await db.transaction('rw', db.allTables(), async () => {
     if (table === 'companies') {
       const row = await db.companies.get(id);
       if (!row) throw new Error('company not found');

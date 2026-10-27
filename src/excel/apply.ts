@@ -9,7 +9,7 @@ import { countPlan, planImport, type RawRow } from './plan';
  */
 export async function applyImport(db: KhataDb, author: Author, rows: RawRow[]) {
   stampRecord(author.staff, author.deviceId);
-  return db.transaction('rw', db.catalogTables(), async () => {
+  return db.transaction('rw', db.allTables(), async () => {
     const companies = await db.companies.toArray();
     const plan = planImport(rows, companies, await db.items.toArray());
     const byName = new Map(companies.map((c) => [c.name.toLowerCase(), c]));

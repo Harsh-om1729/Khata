@@ -59,6 +59,15 @@ export interface BillLineRow {
   server_at: string | null;
 }
 
+/** Every money movement is one row (PLAN §3). Never edited or deleted. */
+export interface PaymentRow extends Synced {
+  bill_id: string | null;
+  customer_id: string | null;
+  method: 'cash' | 'upi' | 'udhaar';
+  type: 'sale' | 'repayment' | 'opening';
+  amount_paise: number;
+}
+
 /** The last bill number used on this phone for one day. Kept forever, so a number is never given twice. */
 export interface BillCounterRow {
   day: string;
@@ -77,5 +86,8 @@ export type OutboxEntry =
   | { seq?: number; table: 'companies'; row: CompanyRow; queued_at: string }
   | { seq?: number; table: 'items'; row: ItemRow; queued_at: string }
   | { seq?: number; table: 'price_changes'; row: PriceChangeRow; queued_at: string }
+  | { seq?: number; table: 'bills'; row: BillRow; queued_at: string }
+  | { seq?: number; table: 'bill_lines'; row: BillLineRow; queued_at: string }
+  | { seq?: number; table: 'payments'; row: PaymentRow; queued_at: string }
   // Points at the pictures table instead of copying the photo into the queue.
   | { seq?: number; table: 'pictures'; path: string; queued_at: string };

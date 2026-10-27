@@ -3,12 +3,13 @@ import { AddCompanyForm } from '../components/AddCompanyForm';
 import { AddItemForm } from '../components/AddItemForm';
 import { BillReview } from '../components/BillReview';
 import { BillStrip } from '../components/BillStrip';
+import { PayScreen } from '../components/PayScreen';
 import { CompanyGrid } from '../components/CompanyGrid';
 import { Icon } from '../components/Icon';
 import { ItemGrid } from '../components/ItemGrid';
 import { ItemSearch } from '../components/ItemSearch';
-import { addItem, emptyBill, formatQty, removeLine, setLineDefault, setLinePrice, setQty, type DraftBill } from '../bill';
-import { changePrice, type CompanyRow, type ItemRow } from '../db';
+import { addItem, emptyBill, formatQty, removeLine, saveCashBill, setLineDefault, setLinePrice, setQty, type DraftBill } from '../bill';
+import { changePrice, type BillRow, type CompanyRow, type ItemRow } from '../db';
 import { useI18n } from '../i18n';
 import { useServices } from '../services';
 import { useAuthor } from '../staff/use-author';
@@ -18,12 +19,19 @@ type View =
   | { name: 'addCompany' }
   | { name: 'company'; company: CompanyRow }
   | { name: 'addItem'; company: CompanyRow }
-  | { name: 'review'; from: View };
+  | { name: 'review'; from: View }
+  | { name: 'pay'; from: View };
 
 /** The main screen after unlock. The bill lives in memory only, so locking or closing the app never hands it to the next person. */
-export function Billing({ onManage }: { onManage: () => void }) {
+interface Props {
+  onManage: () => void;
+  /** Called after a bill is saved; the phone then locks (SPEC §2). */
+  onSaved: (bill: BillRow) => void;
+}
+
+export function Billing({ onManage, onSaved }: Props) {
   const { t } = useI18n();
-  const { db } = useServices();
+  const { db, device } = useServices();
   const author = useAuthor();
   const [view, setView] = useState<View>({ name: 'companies' });
   const [bill, setBill] = useState<DraftBill>(emptyBill);
@@ -42,6 +50,10 @@ export function Billing({ onManage }: { onManage: () => void }) {
   const review = () => {
     setQuery('');
     if (view.name !== 'review') setView({ name: 'review', from: view });
+  };
+  const save = async () => {
+    const saved = await saveCashBill(db, author, device.cached()?.code ?? null, bill);
+    onSaved(saved.bill);
   };
   // Not an edit of the bill, so undo does not reverse it; the price log keeps the record.
   const makeDefault = async (lineId: string) => {
@@ -83,10 +95,16 @@ export function Billing({ onManage }: { onManage: () => void }) {
             onPrice={(id, price) => change(setLinePrice(bill, id, price))}
             onRemove={(id) => change(removeLine(bill, id))}
             onMakeDefault={makeDefault}
+            onPay={() => setView({ name: 'pay', from: view })}
           />
         );
+      case 'pay':
+        return <PayScreen bill={bill} onBack={() => setView(view.from)} onSave={save} />;
     }
   };
+
+  // The pay screen has one job, so search, the strip and item management step aside.
+  if (view.name === 'pay') return <div class="billing">{body()}</div>;
 
   return (
     <div class="billing">

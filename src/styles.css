@@ -687,3 +687,25 @@ body {
   align-items: center;
   gap: 6px;
 }
+
+.btn--big {
+  min-height: 64px;
+  font-size: 22px;
+}
+
+.pay__total {
+  margin: 0;
+  font-size: 56px;
+  font-weight: 700;
+  line-height: 1.1;
+  text-align: center;
+}
+
+.pay__lines {
+  margin: 0;
+  text-align: center;
+}
+
+.nowrap {
+  white-space: nowrap;
+}

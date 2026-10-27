@@ -8,7 +8,7 @@ import type { PriceChangeRow } from './types';
 export async function changePrice(db: KhataDb, author: Author, itemId: string, newPaise: number): Promise<PriceChangeRow | null> {
   if (!Number.isSafeInteger(newPaise) || newPaise < 0) throw new Error('price must be whole paise, 0 or more');
   const stamp = stampRecord(author.staff, author.deviceId);
-  return db.transaction('rw', db.catalogTables(), async () => {
+  return db.transaction('rw', db.allTables(), async () => {
     const item = await db.items.get(itemId);
     if (!item) throw new Error('item not found');
     if (item.price_paise === newPaise) return null;
