@@ -35,6 +35,30 @@ export interface PriceChangeRow extends Synced {
   new_paise: number;
 }
 
+/** A saved bill. Never edited or deleted; a void is a separate record (SPEC §4). */
+export interface BillRow extends Synced {
+  bill_no: string;
+  customer_id: string | null;
+  total_paise: number;
+  kind: 'sale' | 'return';
+  linked_bill_id: string | null;
+}
+
+/** One line of a saved bill, with the item's name and price as they were at the sale. */
+export interface BillLineRow {
+  id: string;
+  device_id: string;
+  bill_id: string;
+  item_id: string;
+  name: string;
+  /** Thousandths of a unit (2.5 kg = 2500), so no float ever touches money. The server's qty is numeric(10,3). */
+  qty_milli: number;
+  unit_price_paise: number;
+  line_total_paise: number;
+  created_at: string;
+  server_at: string | null;
+}
+
 /** A compressed photo, kept under the same path it gets in cloud storage. Bytes, not a Blob, because Blobs in IndexedDB are unreliable on some phones. */
 export interface PictureRow {
   path: string;
