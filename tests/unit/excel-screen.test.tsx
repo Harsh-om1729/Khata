@@ -35,6 +35,7 @@ describe('Excel screen when its code cannot load', () => {
     );
     fireEvent.click(await screen.findByRole('button', { name: /Harsh/ }));
     for (const digit of '2468') fireEvent.click(screen.getByRole('button', { name: digit }));
+    fireEvent.click(await screen.findByRole('button', { name: hi.manageItems }));
     fireEvent.click(await screen.findByRole('button', { name: hi.excelTitle }));
     fireEvent.change(screen.getByLabelText(hi.chooseExcel), { target: { files: [new File(['x'], 'list.xlsx')] } });
     expect((await screen.findByRole('alert')).textContent).toContain(hi.excelLoadFailed);

@@ -67,6 +67,7 @@ test('a camera photo is shrunk on the phone and shows on the item tile; an item 
   await unlock(page);
   await page.context().setOffline(true);
 
+  await page.getByRole('button', { name: hi.manageItems }).click();
   await page.getByRole('button', { name: hi.addCompany }).click();
   await page.getByLabel(hi.companyName).fill('Tata');
   await page.getByRole('button', { name: hi.save }).click();
@@ -116,4 +117,40 @@ test('a camera photo is shrunk on the phone and shows on the item tile; an item 
 
   const stored = await img.evaluate(async (el: HTMLImageElement) => (await (await fetch(el.src)).blob()).size);
   expect(stored).toBeLessThan(150_000);
+});
+
+test('billing offline: tap items and search, and the bill strip shows the running total', async ({ page }) => {
+  await fakeBackend(page);
+  await page.goto('/');
+  await expect(page.getByText(hi.deviceApproved)).toBeVisible();
+  await unlock(page);
+  await page.context().setOffline(true);
+
+  await page.getByRole('button', { name: hi.addCompany }).click();
+  await page.getByLabel(hi.companyName).fill('Ultratech');
+  await page.getByRole('button', { name: hi.save }).click();
+  const sizes: [string, string][] = [['50kg', '380'], ['25kg', '200']];
+  for (const [size, price] of sizes) {
+    await page.getByRole('button', { name: hi.addItem }).click();
+    await page.getByLabel(hi.itemNameHi).fill('सीमेंट');
+    await page.getByLabel(hi.itemSize).fill(size);
+    await page.getByLabel(hi.itemPrice).fill(price);
+    await page.getByRole('button', { name: hi.save }).click();
+  }
+
+  const tile = (text: string) => page.getByTestId('item-tile').filter({ hasText: text }).getByRole('button').first();
+  await tile('50kg').click();
+  await tile('50kg').click();
+  await expect(page.getByTestId('bill-total')).toHaveText('₹760');
+  await expect(page.getByTestId('item-tile').filter({ hasText: '50kg' })).toContainText(`${hi.onBill} 2`);
+
+  await page.getByPlaceholder(hi.search).fill('सीमेंट 25');
+  await expect(page.getByTestId('item-tile')).toHaveCount(1);
+  await tile('25kg').click();
+  await expect(page.getByTestId('bill-total')).toHaveText('₹960');
+  await expect(page.getByTestId('bill-count')).toHaveText(`2 ${hi.billItems}`);
+
+  await page.getByRole('button', { name: hi.undo }).click();
+  await expect(page.getByTestId('bill-total')).toHaveText('₹760');
+  await expect(page.getByTestId('bill-total')).toBeInViewport();
 });

@@ -38,6 +38,7 @@ async function unlockedOwner(page: Page, { offline = false } = {}) {
   }
   await page.getByRole('button', { name: /Harsh/ }).click();
   for (const digit of '2468') await page.getByRole('button', { name: digit, exact: true }).click();
+  await page.getByRole('button', { name: hi.manageItems }).click();
   await page.getByRole('button', { name: hi.excelTitle }).click();
 }
 

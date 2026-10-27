@@ -37,6 +37,7 @@ async function openItemAs(who: StaffMember) {
   );
   fireEvent.click(await screen.findByRole('button', { name: new RegExp(who.name) }));
   for (const digit of '2468') fireEvent.click(screen.getByRole('button', { name: digit }));
+  fireEvent.click(await screen.findByRole('button', { name: hi.manageItems }));
   fireEvent.click(await screen.findByRole('button', { name: /Ultratech/ }));
   fireEvent.click(await screen.findByRole('button', { name: /Cement/ }));
   await screen.findByTestId('current-price');

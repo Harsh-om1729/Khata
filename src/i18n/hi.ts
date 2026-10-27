@@ -128,4 +128,13 @@ export const hi = {
   excelLoadFailed: 'Excel वाला हिस्सा नहीं खुला। इंटरनेट चालू करें और ऐप बंद करके फिर खोलें।',
   priceListHowTo: 'बहुत सारे दाम एक साथ बदलने हों तो: अभी की दाम सूची Excel में लें, कंप्यूटर पर दाम बदलें, फिर नीचे से वही फ़ाइल चुनें।',
   downloadPriceList: 'अभी की दाम सूची Excel में लें',
+  manageItems: 'सामान और दाम',
+  search: 'सामान खोजें',
+  clearSearch: 'खोज हटाएँ',
+  searchNone: 'कुछ नहीं मिला। दूसरा नाम लिखकर देखें।',
+  bill: 'बिल',
+  billEmpty: 'बिल खाली है। सामान पर टैप करें।',
+  billItems: 'सामान',
+  onBill: 'बिल में:',
+  undo: 'आख़िरी हटाएँ',
 } as const;

@@ -42,6 +42,7 @@ async function openCompany() {
   );
   fireEvent.click(await screen.findByRole('button', { name: /Harsh/ }));
   for (const digit of '2468') fireEvent.click(screen.getByRole('button', { name: digit }));
+  fireEvent.click(await screen.findByRole('button', { name: hi.manageItems }));
   fireEvent.click(await screen.findByRole('button', { name: /Ultratech/ }));
 }
 

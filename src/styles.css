@@ -538,3 +538,91 @@ body {
   color: var(--brand);
   font-weight: 700;
 }
+
+.billing {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  /* Room so the last tiles are never hidden behind the bill strip. */
+  padding-bottom: 120px;
+}
+
+.search {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.search__box {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 0 12px;
+  border: 2px solid var(--text);
+  border-radius: 12px;
+}
+
+.search__box input {
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+  border: 0;
+  font: inherit;
+}
+
+.tile--picked {
+  border-width: 4px;
+}
+
+.tile__company {
+  font-size: 15px;
+  font-weight: 400;
+}
+
+.tile__count {
+  padding: 2px 10px;
+  border-radius: 8px;
+  background: var(--brand);
+  color: var(--bg);
+}
+
+.manage-link {
+  align-self: flex-start;
+}
+
+.bill-strip {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 12px 16px;
+  border-top: 3px solid var(--brand);
+  background: var(--bg);
+}
+
+.bill-strip__sum {
+  display: flex;
+  flex-direction: column;
+}
+
+.bill-strip__total {
+  font-size: 32px;
+  line-height: 1.1;
+}
+
+.search__box:focus-within {
+  outline: 3px solid var(--brand);
+  outline-offset: 2px;
+}
+
+.search__box input:focus {
+  outline: none;
+}

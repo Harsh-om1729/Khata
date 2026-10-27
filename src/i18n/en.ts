@@ -130,4 +130,13 @@ export const en: Messages = {
   excelLoadFailed: 'The Excel part did not open. Turn on internet, then close and reopen the app.',
   priceListHowTo: 'To change many prices at once: get the current price list in Excel, change prices on a computer, then choose that file below.',
   downloadPriceList: 'Get current price list in Excel',
+  manageItems: 'Items and prices',
+  search: 'Search items',
+  clearSearch: 'Clear search',
+  searchNone: 'Nothing found. Try another name.',
+  bill: 'Bill',
+  billEmpty: 'Bill is empty. Tap an item.',
+  billItems: 'items',
+  onBill: 'On bill:',
+  undo: 'Remove last',
 };

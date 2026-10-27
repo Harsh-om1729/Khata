@@ -5,7 +5,10 @@ import { CompanyGrid } from '../components/CompanyGrid';
 import { ExcelImport } from '../components/ExcelImport';
 import { ItemGrid } from '../components/ItemGrid';
 import { ItemPage } from '../components/ItemPage';
-import type { CompanyRow } from '../db';
+import { PhotoButton } from '../components/PhotoButton';
+import { setItemPicture, type CompanyRow } from '../db';
+import { useI18n } from '../i18n';
+import { useServices } from '../services';
 
 type View =
   | { name: 'companies' }
@@ -15,14 +18,25 @@ type View =
   | { name: 'addItem'; company: CompanyRow }
   | { name: 'item'; company: CompanyRow; itemId: string };
 
-export function Catalog() {
+/** Items and prices (UI-VOICE §2.7): photos, price changes and Excel. Tapping an item opens its page. */
+export function Catalog({ onClose }: { onClose: () => void }) {
+  const { t } = useI18n();
+  const { db } = useServices();
   const [view, setView] = useState<View>({ name: 'companies' });
   const companies = () => setView({ name: 'companies' });
   const open = (company: CompanyRow) => setView({ name: 'company', company });
 
   switch (view.name) {
     case 'companies':
-      return <CompanyGrid onOpen={open} onAdd={() => setView({ name: 'addCompany' })} onExcel={() => setView({ name: 'excel' })} />;
+      return (
+        <CompanyGrid
+          title={t.manageItems}
+          onBack={onClose}
+          onOpen={open}
+          onAdd={() => setView({ name: 'addCompany' })}
+          onExcel={() => setView({ name: 'excel' })}
+        />
+      );
     case 'excel':
       return <ExcelImport onBack={companies} />;
     case 'addCompany':
@@ -33,8 +47,16 @@ export function Catalog() {
         <ItemGrid
           company={view.company}
           onAdd={() => setView({ name: 'addItem', company: view.company })}
-          onOpen={(item) => setView({ name: 'item', company: view.company, itemId: item.id })}
+          onPick={(item) => setView({ name: 'item', company: view.company, itemId: item.id })}
           onBack={companies}
+          extra={(item) => (
+            <PhotoButton
+              label={item.picture ? t.changePhoto : t.takePhoto}
+              onPhoto={async (photo) => {
+                await setItemPicture(db, item.id, photo);
+              }}
+            />
+          )}
         />
       );
     case 'addItem':
