@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page } from './fixtures';
 import { hi } from '../../src/i18n';
 
 function fakeJwt(sub: string): string {

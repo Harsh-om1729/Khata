@@ -153,6 +153,15 @@ body {
   border-color: var(--danger);
 }
 
+.device__code-small {
+  width: 100%;
+  font-weight: 400;
+}
+
+.device__code-small strong {
+  letter-spacing: 2px;
+}
+
 .device__code {
   width: 100%;
   font-size: 32px;

@@ -37,6 +37,13 @@ describe('phone status on the home screen', () => {
     expect(await screen.findByText(hi.deviceRevoked)).toBeTruthy();
   });
 
+  it.each([approved, revoked])('shows its own code when $status, so the owner can match it', async (info) => {
+    renderWith(fakeDevice(info));
+    const codeLine = await screen.findByText(hi.thisPhoneCode, { exact: false });
+    expect(codeLine.textContent).toContain('B7D 40E');
+    expect(codeLine.textContent).toContain(`${hi.billLetter} A`);
+  });
+
   it('offline on first ever start asks for internet', async () => {
     renderWith(fakeDevice(new Error('offline')));
     expect(await screen.findByText(hi.deviceNeedInternet)).toBeTruthy();

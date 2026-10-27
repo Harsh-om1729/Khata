@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 import { hi as t } from '../../src/i18n';
 
 interface ManifestIcon {

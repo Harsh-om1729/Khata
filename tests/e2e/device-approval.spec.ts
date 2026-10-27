@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page } from './fixtures';
 import { hi } from '../../src/i18n';
 
 // Fakes the Supabase API of the e2e build so a brand-new phone can be walked through approval.

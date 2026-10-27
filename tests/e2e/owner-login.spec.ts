@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page } from './fixtures';
 import { hi } from '../../src/i18n';
 
 // The e2e build points at a placeholder Supabase URL; these routes stand in for its API,

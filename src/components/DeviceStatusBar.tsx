@@ -79,6 +79,13 @@ export function DeviceStatusBar() {
   }
 
   const { info } = view;
+  // Always shown, so the owner can match this phone in his list whatever its status.
+  const codeLine = (
+    <span class="device__code-small">
+      {t.thisPhoneCode} <strong>{registrationCode(info.id)}</strong>
+      {info.code && ` · ${t.billLetter} ${info.code}`}
+    </span>
+  );
   if (info.status === 'approved') {
     return (
       <section class="device device--ok" role="status">
@@ -86,6 +93,7 @@ export function DeviceStatusBar() {
         <span>
           {t.deviceApproved} ({info.code})
         </span>
+        {codeLine}
       </section>
     );
   }
@@ -94,6 +102,7 @@ export function DeviceStatusBar() {
       <section class="device device--warn" role="status">
         <Icon name="block" />
         <span>{t.deviceRevoked}</span>
+        {codeLine}
         {checkAgain}
       </section>
     );

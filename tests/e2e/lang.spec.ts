@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 import { en, hi } from '../../src/i18n';
 
 test('switches to English and stays English after reload', async ({ page }) => {
