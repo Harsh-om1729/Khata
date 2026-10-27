@@ -58,4 +58,11 @@ export const hi = {
   confirmRemove: 'पक्का हटाएँ?',
   staffLoadError: 'स्टाफ़ की सूची नहीं मिली। इंटरनेट जाँचें।',
   pinFormat: 'पिन में ठीक 4 अंक होने चाहिए',
+  phonesTurnedOff: 'बंद फ़ोन',
+  lastSeen: 'आख़िरी बार खुला:',
+  lastSeenNever: 'अभी तक नहीं',
+  thisPhone: 'यही फ़ोन (आप इसी पर हैं)',
+  rename: 'नाम बदलें',
+  phoneName: 'फ़ोन का नाम',
+  saveName: 'नाम सेव करें',
 } as const;

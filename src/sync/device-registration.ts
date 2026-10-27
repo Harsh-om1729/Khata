@@ -124,6 +124,8 @@ export function createDeviceRegistration(
         if (error) throw asRegistrationError(error);
         info = { id, status: 'pending', code: null };
       }
+      // "Last seen" for the owner's phone list; not worth failing registration over.
+      await supabase.rpc('device_seen').then(() => {}, () => {});
       store.set(CACHE_KEY, JSON.stringify(info));
       return info;
     },

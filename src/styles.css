@@ -188,9 +188,42 @@ body {
   border-style: dashed;
 }
 
+.phone__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.phone__name {
+  font-size: 22px;
+}
+
 .phone__code {
-  font-size: 24px;
-  letter-spacing: 3px;
+  font-size: 15px;
+  letter-spacing: 2px;
+  opacity: 0.8;
+}
+
+.phone__seen {
+  font-size: 15px;
+}
+
+.tag {
+  padding: 0 8px;
+  border: 1px solid var(--brand);
+  border-radius: 8px;
+  color: var(--brand);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.phones-off {
+  margin-bottom: 24px;
+}
+
+.phones-off__toggle[aria-expanded='true'] .icon {
+  transform: rotate(180deg);
 }
 
 .phone__status {

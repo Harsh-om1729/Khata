@@ -46,10 +46,17 @@ async function register(client: SupabaseClient, authUserId: string): Promise<str
 }
 
 export async function setDeviceStatus(deviceId: string, status: 'approved' | 'revoked'): Promise<void> {
+  if (status === 'revoked') {
+    mustOk(await admin.from('devices').update({ status }).eq('id', deviceId));
+    return;
+  }
+  const current = must(await admin.from('devices').select('code').eq('id', deviceId).single());
+  // A bill letter never changes once given (M0-6c), so only a phone without one gets a new letter.
   for (let attempt = 0; attempt < 5; attempt++) {
-    const { error } = await admin.from('devices').update({ status, code: randomCode() }).eq('id', deviceId);
+    const code = current.code ?? randomCode();
+    const { error } = await admin.from('devices').update({ status, code }).eq('id', deviceId);
     if (!error) return;
-    if (error.code !== '23505') throw error;
+    if (error.code !== '23505' || current.code) throw error;
   }
   throw new Error('could not find a free device code');
 }

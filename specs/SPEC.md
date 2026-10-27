@@ -24,7 +24,7 @@ Phones are shared, so every sale records which staff member made it (staff tile 
 ### 2.1 Permissions
 - Owner and staff have the **same permissions**. Everyone can make bills, record udhaar and payments, change prices, void bills, and change shop and GST settings.
 - **Owner-only exceptions**, each enforced in the database's row-level security (RLS) and covered by tests:
-  - Approving or removing phones.
+  - Approving or removing phones. A turned-off phone is never deleted, because bills reference it, and its bill letter is never reused.
   - Staff management: adding or removing staff and resetting PINs.
   - The UPI QR code. Any QR change shows an alert on the owner's phone.
 - Staff can change their own PIN. The server checks the old PIN before saving the new one.

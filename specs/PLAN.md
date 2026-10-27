@@ -31,7 +31,7 @@ All tables have `id` (UUID made on the phone), `device_id`, `created_at` (device
 
 | Table | Key fields | Notes |
 |---|---|---|
-| devices | name, status (pending/approved/revoked), last_seen, unsynced_count | One per phone |
+| devices | name, code, status (pending/approved/revoked), last_seen, unsynced_count | One per phone. Never deleted. The bill letter (`code`) never changes once given, so it is never reused. The owner can rename a phone |
 | staff | name, photo, pin_hash, pin_version, active, removed_at | Phones never read or write pin_hash (see §5). pin_version and removed_at sync to phones |
 | companies | name, picture, archived | Archived, never deleted |
 | items | company_id, name_hi, name_en, size, unit, price, category, picture, needs_review, archived | Natural key: company + name + size. Archived, never deleted; archived items are hidden from billing |

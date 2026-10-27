@@ -60,4 +60,11 @@ export const en: Messages = {
   confirmRemove: 'Really remove?',
   staffLoadError: 'Could not load the staff list. Check internet.',
   pinFormat: 'The PIN must be exactly 4 digits',
+  phonesTurnedOff: 'Turned off',
+  lastSeen: 'Last seen:',
+  lastSeenNever: 'Not yet',
+  thisPhone: 'This phone (you are using it)',
+  rename: 'Rename',
+  phoneName: 'Phone name',
+  saveName: 'Save name',
 };

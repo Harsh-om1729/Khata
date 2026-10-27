@@ -8,6 +8,7 @@ export interface DeviceRow {
   name: string;
   status: DeviceStatus;
   code: string | null;
+  last_seen: string | null;
   created_at: string;
 }
 
@@ -15,6 +16,7 @@ export interface DeviceAdmin {
   list(): Promise<DeviceRow[]>;
   approve(deviceId: string): Promise<void>;
   revoke(deviceId: string): Promise<void>;
+  rename(deviceId: string, name: string): Promise<void>;
 }
 
 const UNIQUE_VIOLATION = '23505';
@@ -30,7 +32,7 @@ export function createDeviceAdmin(load: () => Promise<SupabaseClient> = getSupab
     const supabase = await load();
     const { data, error } = await supabase
       .from('devices')
-      .select('id, name, status, code, created_at')
+      .select('id, name, status, code, last_seen, created_at')
       .order('created_at', { ascending: false });
     if (error) throw error;
     return data as DeviceRow[];
@@ -64,6 +66,17 @@ export function createDeviceAdmin(load: () => Promise<SupabaseClient> = getSupab
       const { data, error } = await supabase
         .from('devices')
         .update({ status: 'revoked' })
+        .eq('id', deviceId)
+        .select('id');
+      if (error) throw error;
+      expectOneRow(data);
+    },
+
+    async rename(deviceId, name) {
+      const supabase = await load();
+      const { data, error } = await supabase
+        .from('devices')
+        .update({ name: name.trim() })
         .eq('id', deviceId)
         .select('id');
       if (error) throw error;

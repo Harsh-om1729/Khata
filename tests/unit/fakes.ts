@@ -40,12 +40,20 @@ export function fakeDeviceAdmin(initial: DeviceRow[] = []) {
     revoke: vi.fn(async (id: string) => {
       rows = rows.map((r) => (r.id === id ? { ...r, status: 'revoked' as const } : r));
     }),
+    rename: vi.fn(async (id: string, name: string) => {
+      rows = rows.map((r) => (r.id === id ? { ...r, name } : r));
+    }),
   } satisfies DeviceAdmin & { rows(): DeviceRow[] };
 }
 
 export const PENDING_ID = '3f9a2c11-0000-4000-8000-000000000001';
 export const APPROVED_ID = 'b7d40e22-0000-4000-8000-000000000002';
 
-export function deviceRow(id: string, status: DeviceRow['status'], code: string | null = null): DeviceRow {
-  return { id, name: id.slice(0, 6), status, code, created_at: new Date().toISOString() };
+export function deviceRow(
+  id: string,
+  status: DeviceRow['status'],
+  code: string | null = null,
+  extra: Partial<DeviceRow> = {},
+): DeviceRow {
+  return { id, name: id.slice(0, 6), status, code, last_seen: null, created_at: new Date().toISOString(), ...extra };
 }
