@@ -28,6 +28,13 @@ export interface ItemRow extends Synced {
   archived: boolean;
 }
 
+/** One price change, append-only: never edited or deleted (SPEC §3). */
+export interface PriceChangeRow extends Synced {
+  item_id: string;
+  old_paise: number;
+  new_paise: number;
+}
+
 /** A compressed photo, kept under the same path it gets in cloud storage. Bytes, not a Blob, because Blobs in IndexedDB are unreliable on some phones. */
 export interface PictureRow {
   path: string;
@@ -39,5 +46,6 @@ export interface PictureRow {
 export type OutboxEntry =
   | { seq?: number; table: 'companies'; row: CompanyRow; queued_at: string }
   | { seq?: number; table: 'items'; row: ItemRow; queued_at: string }
+  | { seq?: number; table: 'price_changes'; row: PriceChangeRow; queued_at: string }
   // Points at the pictures table instead of copying the photo into the queue.
   | { seq?: number; table: 'pictures'; path: string; queued_at: string };

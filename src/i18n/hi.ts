@@ -96,4 +96,11 @@ export const hi = {
   photoSaving: 'फ़ोटो सेव हो रही है…',
   photoFailed: 'फ़ोटो नहीं बनी। फिर से लें।',
   photoAdded: 'फ़ोटो लग गई',
+  changePrice: 'दाम बदलें',
+  newPrice: 'नया दाम (₹)',
+  currentPrice: 'अभी का दाम:',
+  priceSame: 'यही दाम पहले से है',
+  priceHistory: 'दाम कब-कब बदला',
+  priceHistoryEmpty: 'दाम अभी तक नहीं बदला',
+  unknownStaff: 'कोई स्टाफ़',
 } as const;

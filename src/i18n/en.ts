@@ -98,4 +98,11 @@ export const en: Messages = {
   photoSaving: 'Saving photo…',
   photoFailed: 'The photo did not work. Take it again.',
   photoAdded: 'Photo added',
+  changePrice: 'Change price',
+  newPrice: 'New price (₹)',
+  currentPrice: 'Price now:',
+  priceSame: 'The price is already this',
+  priceHistory: 'Price changes',
+  priceHistoryEmpty: 'The price has not changed yet',
+  unknownStaff: 'A staff member',
 };

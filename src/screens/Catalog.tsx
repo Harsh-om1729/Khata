@@ -3,13 +3,15 @@ import { AddCompanyForm } from '../components/AddCompanyForm';
 import { AddItemForm } from '../components/AddItemForm';
 import { CompanyGrid } from '../components/CompanyGrid';
 import { ItemGrid } from '../components/ItemGrid';
+import { ItemPage } from '../components/ItemPage';
 import type { CompanyRow } from '../db';
 
 type View =
   | { name: 'companies' }
   | { name: 'addCompany' }
   | { name: 'company'; company: CompanyRow }
-  | { name: 'addItem'; company: CompanyRow };
+  | { name: 'addItem'; company: CompanyRow }
+  | { name: 'item'; company: CompanyRow; itemId: string };
 
 export function Catalog() {
   const [view, setView] = useState<View>({ name: 'companies' });
@@ -23,8 +25,17 @@ export function Catalog() {
       // A new company opens straight away, so its first item is one tap further.
       return <AddCompanyForm onSaved={open} onCancel={companies} />;
     case 'company':
-      return <ItemGrid company={view.company} onAdd={() => setView({ name: 'addItem', company: view.company })} onBack={companies} />;
+      return (
+        <ItemGrid
+          company={view.company}
+          onAdd={() => setView({ name: 'addItem', company: view.company })}
+          onOpen={(item) => setView({ name: 'item', company: view.company, itemId: item.id })}
+          onBack={companies}
+        />
+      );
     case 'addItem':
       return <AddItemForm company={view.company} onSaved={() => open(view.company)} onCancel={() => open(view.company)} />;
+    case 'item':
+      return <ItemPage itemId={view.itemId} onBack={() => open(view.company)} />;
   }
 }
