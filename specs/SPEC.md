@@ -31,6 +31,7 @@ Phones are shared, so every sale records which staff member made it (staff tile 
 - PIN unlock offline: a staff member's first login on a phone needs internet, because the server checks the PIN. After that, the phone can unlock that staff member offline. 5 wrong tries offline lock the PIN screen for 5 minutes.
 - PIN changes and staff removal reach a phone when it syncs. Bills by a removed staff member made after the removal time are flagged in the owner's log.
 - GST settings hold only an optional GSTIN, shown on the bill. No tax rates or tax calculation (GST invoices stay out of scope, section 7).
+- Shop profile (part of settings): shop name (required), optional GSTIN, two phone numbers, address, pincode and state. It is printed at the top of the on-screen bill. The screen shows "Profile X% complete" from how many of these 7 fields are filled.
 - Items and companies are archived, never deleted. Archived items are hidden from billing and can be restored.
 - Every change records which phone and which person made it.
 - The owner can see a log of voids, returns, opening balances, price changes and settings changes.

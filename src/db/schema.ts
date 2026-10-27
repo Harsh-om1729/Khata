@@ -9,6 +9,7 @@ import type {
   PaymentRow,
   PictureRow,
   PriceChangeRow,
+  SettingsChangeRow,
 } from './types';
 
 export class KhataDb extends Dexie {
@@ -20,6 +21,7 @@ export class KhataDb extends Dexie {
   declare bills: EntityTable<BillRow, 'id'>;
   declare bill_lines: EntityTable<BillLineRow, 'id'>;
   declare payments: EntityTable<PaymentRow, 'id'>;
+  declare settings_changes: EntityTable<SettingsChangeRow, 'id'>;
   declare outbox: EntityTable<OutboxEntry, 'seq'>;
 
   constructor(name = 'khata') {
@@ -33,13 +35,14 @@ export class KhataDb extends Dexie {
     this.version(3).stores({ price_changes: 'id, item_id' });
     this.version(4).stores({ bill_counters: 'day' });
     this.version(5).stores({ bills: 'id, &bill_no, created_at', bill_lines: 'id, bill_id', payments: 'id, bill_id, customer_id' });
+    this.version(6).stores({ settings_changes: 'id, field' });
   }
 
   /** Every table a write can touch. Nested transactions must stay inside their parent's tables, so writes always open all of them. */
   allTables() {
     return [
       this.companies, this.items, this.pictures, this.price_changes,
-      this.bill_counters, this.bills, this.bill_lines, this.payments, this.outbox,
+      this.bill_counters, this.bills, this.bill_lines, this.payments, this.settings_changes, this.outbox,
     ];
   }
 }

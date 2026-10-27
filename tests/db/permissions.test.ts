@@ -198,3 +198,35 @@ describe('editing items made by someone else (last write wins)', () => {
     expect(creator.error?.code).toBe('42501');
   });
 });
+
+describe('shop profile fields (U-1)', () => {
+  async function profile() {
+    return must(await admin.from('settings').select('phone1, phone2, address, pincode, state').single());
+  }
+
+  it('a staff phone saves phones, address, pincode and state, and each change is logged', async () => {
+    const changes = [
+      change(phone, 'phone1', '9876543210'),
+      change(phone, 'phone2', '6122345678'),
+      change(phone, 'address', 'Main Road, Patna'),
+      change(phone, 'pincode', '800001'),
+      change(phone, 'state', '10'),
+    ];
+    for (const row of changes) mustOk(await phone.client.from('settings_changes').insert(row));
+    expect(await profile()).toEqual({ phone1: '9876543210', phone2: '6122345678', address: 'Main Road, Patna', pincode: '800001', state: '10' });
+    expect(must(await admin.from('settings_changes').select('id').in('id', changes.map((c) => c.id)))).toHaveLength(5);
+  });
+
+  it('an empty value clears a field', async () => {
+    mustOk(await phone.client.from('settings_changes').insert(change(phone, 'phone2', '6122345678')));
+    mustOk(await phone.client.from('settings_changes').insert(change(phone, 'phone2', null)));
+    expect((await profile()).phone2).toBeNull();
+  });
+
+  it('rejects values the phone would never send', async () => {
+    for (const [field, value] of [['phone1', '12345'], ['pincode', '080001'], ['state', 'BR'], ['address', 'a'.repeat(201)]] as const) {
+      const { error } = await phone.client.from('settings_changes').insert(change(phone, field, value));
+      expect(error?.code, field).toBe('23514');
+    }
+  });
+});

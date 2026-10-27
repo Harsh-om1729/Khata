@@ -121,7 +121,10 @@ describe('billing screen (M2-2)', () => {
     fireEvent.click(await screen.findByRole('button', { name: /Ultratech/ }));
     await tap('50kg');
     expect(await screen.findByTestId('current-price')).toBeTruthy();
-    expect(screen.queryByTestId('bill-total')).toBeNull();
+    // The bill waits hidden behind item management, and the tap did not add to it.
+    const total = screen.getByTestId('bill-total');
+    expect(total.closest('[hidden]')).not.toBeNull();
+    expect(total.textContent).toBe('₹0');
   });
 });
 

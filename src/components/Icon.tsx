@@ -21,6 +21,18 @@ const paths = {
   undo: 'M12.5 8c-2.6 0-5 1-6.9 2.6L2 7v9h9l-3.6-3.6A8 8 0 0 1 20.1 16l2.4-.8A10.5 10.5 0 0 0 12.5 8Z',
   list: 'M3 5h2v2H3V5Zm4 0h14v2H7V5ZM3 11h2v2H3v-2Zm4 0h14v2H7v-2Zm-4 6h2v2H3v-2Zm4 0h14v2H7v-2Z',
   cash: 'M2 6h20v12H2V6Zm2 2v8h16V8H4Zm8 1.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM5 9h2v2H5V9Zm12 4h2v2h-2v-2Z',
+  menu: 'M3 6h18v2H3V6Zm0 5h18v2H3v-2Zm0 5h18v2H3v-2Z',
+  close: 'M19 6.4 17.6 5 12 10.6 6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12 19 6.4Z',
+  receipt: 'M5 2h14v20l-2.3-1.5L14.3 22 12 20.5 9.7 22l-2.4-1.5L5 22V2Zm2 2v14.3l.3-.2 2.4 1.5 2.3-1.5 2.3 1.5 2.4-1.5.3.2V4H7Zm2 3h6v2H9V7Zm0 4h6v2H9v-2Z',
+  box: 'M12 2 3 6.5v11L12 22l9-4.5v-11L12 2Zm0 2.2 6.5 3.3L12 10.8 5.5 7.5 12 4.2ZM5 9.1l6 3v7.3l-6-3V9.1Zm8 10.3v-7.3l6-3v7.3l-6 3Z',
+  book: 'M6 2h13v20H6a3 3 0 0 1-3-3V5a3 3 0 0 1 3-3Zm0 2a1 1 0 0 0-1 1v11.2c.3-.1.6-.2 1-.2h11V4H6Zm0 14a1 1 0 0 0 0 2h11v-2H6Zm3-12h6v2H9V6Z',
+  chart: 'M3 21V3h2v16h16v2H3Zm4-4v-7h3v7H7Zm5 0V6h3v11h-3Zm5 0v-4h3v4h-3Z',
+  cloud: 'M19 18H6a4 4 0 0 1-.6-8A6 6 0 0 1 17 9a4.5 4.5 0 0 1 2 9Z',
+  store: 'M4 3h16l1.5 6a3 3 0 0 1-2.5 3V21H5v-9a3 3 0 0 1-2.5-3L4 3Zm3 11v5h4v-4h2v4h4v-5H7Z',
+  filter: 'M3 5h18l-7 8.5V20l-4-2v-4.5L3 5Z',
+  tag: 'M3 3h8l10 10-8 8L3 11V3Zm4 2.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z',
+  ruler: 'M2 7h20v10H2V7Zm2 2v6h16V9h-2v3h-2V9h-2v2h-2V9h-2v3H8V9H6v2H4V9Z',
+  archive: 'M20 3H4v4h16V3ZM5 8v13h14V8H5Zm4 3h6v2H9v-2Z',
 } as const;
 
 export type IconName = keyof typeof paths;

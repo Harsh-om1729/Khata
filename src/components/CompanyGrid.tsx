@@ -8,27 +8,16 @@ import { Icon } from './Icon';
 interface Props {
   onOpen: (company: CompanyRow) => void;
   onAdd: () => void;
-  onExcel?: () => void;
-  onBack?: () => void;
-  title?: string;
 }
 
-export function CompanyGrid({ onOpen, onAdd, onExcel, onBack, title }: Props) {
+export function CompanyGrid({ onOpen, onAdd }: Props) {
   const { t } = useI18n();
   const { db } = useServices();
   const companies = useLiveQuery(() => activeCompanies(db), [db]);
 
   return (
     <section class="catalog">
-      {onBack && (
-        <header class="bar bar--start">
-          <button type="button" class="btn" onClick={onBack}>
-            <Icon name="back" />
-            {t.back}
-          </button>
-        </header>
-      )}
-      <h2>{title ?? t.companies}</h2>
+      <h2>{t.companies}</h2>
       {companies.failed && <Alert text={t.loadFailed} />}
       <div class="tiles">
         <button type="button" class="tile tile--add" onClick={onAdd}>
@@ -47,12 +36,6 @@ export function CompanyGrid({ onOpen, onAdd, onExcel, onBack, title }: Props) {
         ))}
       </div>
       {companies.value?.length === 0 && <p class="hint">{t.companiesEmpty}</p>}
-      {onExcel && (
-        <button type="button" class="btn" onClick={onExcel}>
-          <Icon name="upload" />
-          {t.excelTitle}
-        </button>
-      )}
     </section>
   );
 }

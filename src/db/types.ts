@@ -35,6 +35,14 @@ export interface PriceChangeRow extends Synced {
   new_paise: number;
 }
 
+export type SettingField = 'shop_name' | 'gstin' | 'phone1' | 'phone2' | 'address' | 'pincode' | 'state' | 'overdue_days' | 'upi_qr';
+
+/** One settings change, append-only. The phone keeps no settings row; it reads the newest change per field. The server fills in the old value. */
+export interface SettingsChangeRow extends Synced {
+  field: SettingField;
+  new_value: string | null;
+}
+
 /** A saved bill. Never edited or deleted; a void is a separate record (SPEC §4). */
 export interface BillRow extends Synced {
   bill_no: string;
@@ -89,5 +97,6 @@ export type OutboxEntry =
   | { seq?: number; table: 'bills'; row: BillRow; queued_at: string }
   | { seq?: number; table: 'bill_lines'; row: BillLineRow; queued_at: string }
   | { seq?: number; table: 'payments'; row: PaymentRow; queued_at: string }
+  | { seq?: number; table: 'settings_changes'; row: SettingsChangeRow; queued_at: string }
   // Points at the pictures table instead of copying the photo into the queue.
   | { seq?: number; table: 'pictures'; path: string; queued_at: string };

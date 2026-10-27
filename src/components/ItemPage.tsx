@@ -1,4 +1,4 @@
-import { setItemPicture } from '../db';
+import { setArchived, setItemPicture } from '../db';
 import { useLiveQuery } from '../db/live';
 import { useI18n } from '../i18n';
 import { itemName } from '../i18n/item-name';
@@ -6,6 +6,7 @@ import { formatRupees } from '../money';
 import { useServices } from '../services';
 import { Alert } from './Alert';
 import { ChangePriceForm } from './ChangePriceForm';
+import { ConfirmAction } from './ConfirmAction';
 import { Icon } from './Icon';
 import { ItemPicture } from './ItemPicture';
 import { PhotoButton } from './PhotoButton';
@@ -16,6 +17,8 @@ export function ItemPage({ itemId, onBack }: { itemId: string; onBack: () => voi
   const { db } = useServices();
   // Live, so the price on screen changes the moment it is saved.
   const item = useLiveQuery(async () => (await db.items.get(itemId)) ?? null, [db, itemId]);
+  const companyId = item.value?.company_id;
+  const companyRemoved = useLiveQuery(async () => (companyId ? (await db.companies.get(companyId))?.archived === true : false), [db, companyId]);
 
   return (
     <section class="catalog item-page">
@@ -44,6 +47,28 @@ export function ItemPage({ itemId, onBack }: { itemId: string; onBack: () => voi
           </div>
           <ChangePriceForm item={item.value} />
           <PriceHistory itemId={itemId} />
+          <div class="danger-zone">
+            {item.value.archived ? (
+              <>
+                <span class="tile__badge">{t.removedTag}</span>
+                {companyRemoved.value ? (
+                  <p class="hint">{t.companyRemovedHint}</p>
+                ) : (
+                  <button type="button" class="btn" onClick={() => setArchived(db, 'items', itemId, false)}>
+                    <Icon name="undo" />
+                    {t.restore}
+                  </button>
+                )}
+              </>
+            ) : (
+              <ConfirmAction
+                icon="archive"
+                label={t.removeItem}
+                question={t.confirmRemoveItem}
+                onConfirm={() => setArchived(db, 'items', itemId, true)}
+              />
+            )}
+          </div>
         </>
       )}
     </section>

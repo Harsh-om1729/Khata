@@ -19,7 +19,9 @@
 6. Live dashboard for everyone, plus the owner log (see `SPEC.md` section 6)
 7. Price list editor
 8. Sync status / export
-9. Settings: shop name, GSTIN (optional), overdue days. UPI QR upload is owner-only.
+9. Settings: shop profile (SPEC §2.1: shop name, GSTIN optional, two phones, address, pincode, state, with a "Profile X% complete" bar and a fixed Save/Cancel bar; Cancel warns about unsaved changes), overdue days. UPI QR upload is owner-only.
+10. Side menu (☰ on every main screen): one big icon + Hindi label per screen above (Bill, Items, Udhaar, Dashboard, Old bills, Excel, Shop profile, Sync status, Owner). Rows with sub-screens expand, one at a time. It slides over a dimmed background; tapping the background or swiping closes it. Screens not built yet open a "coming soon" page.
+11. Items screen: tabs Companies | Items | Categories | Units (units are the fixed list, read only), one live search box, a picture empty state with one clear sentence, and a floating "+ Add" button on Companies and Items whose label follows the tab (a category exists only on items, and units are fixed, so those tabs have none; categories are set through Excel). A filter sheet filters by company and category and sorts by name or price. Removing an item or company archives it after a confirmation; an "Archived" filter shows them with Restore.
 
 ## 3. Voice input
 - Staff speak an order in Hindi/English mix, e.g. "do bori cement, paanch kilo keel".

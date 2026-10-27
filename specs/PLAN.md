@@ -42,7 +42,7 @@ All tables have `id` (UUID made on the phone), `device_id`, `created_at` (device
 | payments | bill_id?, customer_id?, method (cash/upi/udhaar), amount, type (sale/repayment/opening) | Every money movement is one row |
 | voids | bill_id, staff_id, reason | Bill stays visible. Anyone can void (SPEC §2.1) |
 | alerts | type, ref_id, seen | Created by the app and by DB rules (e.g. a UPI QR change) |
-| settings | shop_name, gstin?, upi_qr, overdue_days | One row. Everyone edits, except upi_qr (owner only) |
+| settings | shop_name, gstin?, phone1?, phone2?, address?, pincode?, state?, upi_qr, overdue_days | One row. Everyone edits, except upi_qr (owner only). The phone keeps only `settings_changes` and reads the newest change per field |
 | settings_changes | field, old, new, staff_id | Append-only log of every settings change |
 
 Rules:

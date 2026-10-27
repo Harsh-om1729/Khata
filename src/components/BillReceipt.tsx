@@ -8,6 +8,7 @@ import { formatRupees } from '../money';
 import { useServices } from '../services';
 import { Alert } from './Alert';
 import { Icon } from './Icon';
+import { ShopHeader } from './ShopHeader';
 
 /** The on-screen bill a customer can see or screenshot (SPEC §4 step 8). Read only. */
 export function BillReceipt({ billId, onClose }: { billId: string; onClose: () => void }) {
@@ -28,6 +29,7 @@ export function BillReceipt({ billId, onClose }: { billId: string; onClose: () =
       {detail.failed && <Alert text={t.loadFailed} />}
       {d && (
         <article class="receipt" data-testid="receipt">
+          <ShopHeader />
           <h2 class="receipt__title">{t.bill}</h2>
           <dl class="receipt__meta">
             <dt>{t.billNo}</dt>

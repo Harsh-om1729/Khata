@@ -174,3 +174,9 @@ export async function activeItems(db: KhataDb, companyId: string): Promise<ItemR
   const rows = await db.items.where('company_id').equals(companyId).toArray();
   return rows.filter((i) => !i.archived);
 }
+
+/** Every company and item, archived too, for the items screen to filter. */
+export async function catalogRows(db: KhataDb): Promise<{ companies: CompanyRow[]; items: ItemRow[] }> {
+  const [companies, items] = await Promise.all([db.companies.toArray(), db.items.toArray()]);
+  return { companies, items };
+}

@@ -33,6 +33,13 @@ Each task lists the spec it implements and what "done" means.
 - [x] M2-7 Persistent storage request and warnings. *DATA-SAFETY §1.*
 - [x] M2-8 Bill history list and on-screen bill view.
 
+## M2b Menu, items screen and shop profile
+Done before M3 at the owner's request (2026-10-28). Keeps the current green theme.
+- [x] U-1 Shop profile data: `settings_changes` in Dexie with the outbox; profile = newest change per field; server migration for phone1, phone2, address, pincode, state. Validation (shop name required, GSTIN 15-character format, 10-digit phone, 6-digit pincode, state from the list) and the completion %. *SPEC §2.1; PLAN §3.* *Done:* unit tests for every rule and the %; a DB test that a device can save the new fields.
+- [x] U-2 Side menu and routing, with a "coming soon" page for screens not built yet. Shared pieces: DrawerRow, PillButton, EmptyState. *UI-VOICE §2.10.* *Done:* every row opens its screen; tapping the background closes the menu (tested).
+- [x] U-3 Items screen with tabs, search, empty states, floating add, filter sheet, archive and restore with confirmation. *UI-VOICE §2.11; SPEC §3.1A.6.* *Done:* an archived item disappears from billing and comes back after Restore (tested).
+- [x] U-4 Shop profile screen with OutlinedField, completion bar, fixed Save/Cancel bar, unsaved-changes warning, and the profile at the top of the on-screen bill. *UI-VOICE §2.9.* *Done:* tests for save, cancel warning and the bill header.
+
 ## M3 Sync
 - [ ] M3-1 Outbox push with idempotent insert and retry/backoff. *PLAN §4.*
 - [ ] M3-2 Sync status labels "Saved on this phone" / "Safe in cloud". *DATA-SAFETY §1.*
