@@ -1,6 +1,8 @@
 import { useState } from 'preact/hooks';
 import { AddCompanyForm } from '../components/AddCompanyForm';
 import { AddItemForm } from '../components/AddItemForm';
+import { BillHistory } from '../components/BillHistory';
+import { BillReceipt } from '../components/BillReceipt';
 import { BillReview } from '../components/BillReview';
 import { BillStrip } from '../components/BillStrip';
 import { PayScreen } from '../components/PayScreen';
@@ -20,7 +22,9 @@ type View =
   | { name: 'company'; company: CompanyRow }
   | { name: 'addItem'; company: CompanyRow | null; from: View; initialName: string }
   | { name: 'review'; from: View }
-  | { name: 'pay'; from: View };
+  | { name: 'pay'; from: View }
+  | { name: 'history'; from: View }
+  | { name: 'receipt'; billId: string; from: View };
 
 /** The main screen after unlock. The bill lives in memory only, so locking or closing the app never hands it to the next person. */
 interface Props {
@@ -116,11 +120,15 @@ export function Billing({ onManage, onSaved }: Props) {
         );
       case 'pay':
         return <PayScreen bill={bill} onBack={() => setView(view.from)} onSave={save} />;
+      case 'history':
+        return <BillHistory onBack={() => setView(view.from)} onOpen={(billId) => setView({ name: 'receipt', billId, from: view })} />;
+      case 'receipt':
+        return <BillReceipt billId={view.billId} onClose={() => setView(view.from)} />;
     }
   };
 
   // The pay screen has one job, so search, the strip and item management step aside.
-  if (view.name === 'pay') return <div class="billing">{body()}</div>;
+  if (view.name === 'pay' || view.name === 'history' || view.name === 'receipt') return <div class="billing">{body()}</div>;
 
   return (
     <div class="billing">
@@ -143,10 +151,16 @@ export function Billing({ onManage, onSaved }: Props) {
         </button>
       )}
       {body()}
-      <button type="button" class="btn manage-link" onClick={onManage}>
-        <Icon name="edit" />
-        {t.manageItems}
-      </button>
+      <div class="row-actions">
+        <button type="button" class="btn" onClick={() => setView({ name: 'history', from: view })}>
+          <Icon name="list" />
+          {t.billHistory}
+        </button>
+        <button type="button" class="btn manage-link" onClick={onManage}>
+          <Icon name="edit" />
+          {t.manageItems}
+        </button>
+      </div>
       <BillStrip bill={bill} canUndo={history.length > 0} onUndo={undo} onReview={view.name === 'review' ? undefined : review} />
     </div>
   );

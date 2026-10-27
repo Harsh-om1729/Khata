@@ -171,4 +171,13 @@ export const en: Messages = {
   billsOnlyOnPhone: 'bills are only on this phone, not in the cloud.',
   oldestBill: 'Oldest bill saved',
   unsyncedHelp: 'Turn on internet. If the phone data is cleared or the phone is lost, these bills are gone.',
+  billHistory: 'Old bills',
+  billHistoryEmpty: 'No bills on this phone yet.',
+  showBill: 'Show bill',
+  close: 'Close',
+  when: 'When',
+  madeBy: 'Made by',
+  total: 'Total',
+  payUpi: 'UPI',
+  payUdhaar: 'Udhaar',
 };

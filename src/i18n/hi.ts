@@ -169,4 +169,13 @@ export const hi = {
   billsOnlyOnPhone: 'बिल अभी सिर्फ़ इस फ़ोन पर हैं, क्लाउड में नहीं।',
   oldestBill: 'सबसे पुराना बिल',
   unsyncedHelp: 'इंटरनेट चालू करें। फ़ोन का डेटा मिटाया या फ़ोन खो गया तो ये बिल चले जाएँगे।',
+  billHistory: 'पुराने बिल',
+  billHistoryEmpty: 'इस फ़ोन पर अभी कोई बिल नहीं।',
+  showBill: 'बिल दिखाएँ',
+  close: 'बंद करें',
+  when: 'कब',
+  madeBy: 'किसने बनाया',
+  total: 'कुल',
+  payUpi: 'UPI',
+  payUdhaar: 'उधार',
 } as const;

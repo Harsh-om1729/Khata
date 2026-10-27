@@ -21,7 +21,7 @@ export function billRecords(draft: DraftBill, author: Author, billNo: string, no
     linked_bill_id: null,
   };
   const lines = draft.lines.map(
-    (line): BillLineRow => ({
+    (line, index): BillLineRow => ({
       // Each saved line gets a fresh UUID; the draft's id is only for the screen.
       id: crypto.randomUUID(),
       device_id: stamp.device_id,
@@ -31,7 +31,8 @@ export function billRecords(draft: DraftBill, author: Author, billNo: string, no
       qty_milli: line.qty_milli,
       unit_price_paise: line.unit_price_paise,
       line_total_paise: draftLineTotal(line),
-      created_at: stamp.created_at,
+      // One millisecond apart, so lines keep the order they were added in; there is no position column.
+      created_at: new Date(now.getTime() + index).toISOString(),
       server_at: null,
     }),
   );

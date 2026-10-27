@@ -366,3 +366,66 @@ describe('"Not in list? Add new" during billing (M2-6)', () => {
     expect(total()).toBe('₹0');
   });
 });
+
+describe('on-screen bill and bill history (M2-8)', () => {
+  async function saveOne() {
+    await unlock();
+    fireEvent.click(await screen.findByRole('button', { name: /Ultratech/ }));
+    await tap('50kg');
+    await tap('50kg');
+    await tap('25kg');
+    fireEvent.click(screen.getByRole('button', { name: hi.seeBill }));
+    const line = (await screen.findAllByTestId('bill-line'))[1];
+    if (!line) throw new Error('missing line');
+    fireEvent.click(within(line).getByRole('button', { name: hi.changeLinePrice }));
+    fireEvent.input(screen.getByLabelText(hi.linePrice), { target: { value: '195' } });
+    fireEvent.click(screen.getByRole('button', { name: hi.ok }));
+    fireEvent.click(screen.getByRole('button', { name: hi.takePayment }));
+    fireEvent.click(await screen.findByRole('button', { name: hi.saveBill }));
+    await screen.findByTestId('saved-notice');
+  }
+
+  it('"show bill" right after saving shows that bill without a PIN, then goes back to the staff tiles', async () => {
+    await saveOne();
+    fireEvent.click(screen.getByRole('button', { name: hi.showBill }));
+    const receipt = await screen.findByTestId('receipt');
+    expect(receipt.textContent).toMatch(/A-\d{6}-001/);
+    expect(receipt.textContent).toContain('Ramesh');
+    const lines = within(receipt).getAllByTestId('receipt-line').map((l) => l.textContent);
+    expect(lines).toEqual(['सीमेंट 50kg2 × ₹380 = ₹760', 'सीमेंट 25kg1 × ₹195 = ₹195']);
+    expect(within(receipt).getByTestId('receipt-total').textContent).toBe('₹955');
+    expect(receipt.textContent).toContain(`${hi.payCash}: ₹955`);
+    expect(screen.queryByText(hi.staffChoose)).toBeNull();
+
+    fireEvent.click(screen.getByRole('button', { name: hi.close }));
+    expect(await screen.findByText(hi.staffChoose)).toBeTruthy();
+    expect(screen.getByTestId('saved-notice')).toBeTruthy();
+  });
+
+  it('old bills: listed newest first; tapping one opens it; back keeps the bill being made', async () => {
+    await saveOne();
+    fireEvent.click(screen.getByRole('button', { name: /Ramesh/ }));
+    for (const digit of '2468') fireEvent.click(screen.getByRole('button', { name: digit }));
+    fireEvent.click(await screen.findByRole('button', { name: /Ultratech/ }));
+    await tap('50kg');
+
+    fireEvent.click(screen.getByRole('button', { name: hi.billHistory }));
+    const rows = await screen.findAllByTestId('history-row');
+    expect(rows).toHaveLength(1);
+    expect(rows[0]?.textContent).toContain('₹955');
+    expect(rows[0]?.textContent).toContain(hi.payCash);
+    fireEvent.click(rows[0] as HTMLElement);
+    expect(within(await screen.findByTestId('receipt')).getByTestId('receipt-total').textContent).toBe('₹955');
+
+    fireEvent.click(screen.getByRole('button', { name: hi.close }));
+    fireEvent.click(await screen.findByRole('button', { name: hi.back }));
+    expect(await screen.findByRole('heading', { name: 'Ultratech' })).toBeTruthy();
+    expect(total()).toBe('₹380');
+  });
+
+  it('says so when there are no bills yet', async () => {
+    await unlock();
+    fireEvent.click(screen.getByRole('button', { name: hi.billHistory }));
+    expect(await screen.findByText(hi.billHistoryEmpty)).toBeTruthy();
+  });
+});

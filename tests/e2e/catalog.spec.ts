@@ -170,6 +170,12 @@ test('billing offline: tap items and search, and the bill strip shows the runnin
   await expect(line.getByTestId('line-sum')).toHaveText('₹370 × 2.5 = ₹925');
   await expect(page.getByTestId('bill-total')).toHaveText('₹925');
   await expect(line.getByTestId('price-changed')).toContainText('₹380');
+
+  await page.getByRole('button', { name: hi.takePayment }).click();
+  await page.getByRole('button', { name: hi.saveBill }).click();
+  await page.getByRole('button', { name: hi.showBill }).click();
+  await expect(page.getByTestId('receipt-total')).toHaveText('₹925');
+  await expect(page.getByTestId('receipt-line')).toHaveText(['सीमेंट 50kg2.5 × ₹370 = ₹925']);
 });
 
 test('"Not in list? Add new" offline: a new company and item go straight on the bill', async ({ page }) => {
