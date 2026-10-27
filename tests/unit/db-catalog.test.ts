@@ -6,6 +6,7 @@ import {
   activeItems,
   createCompany,
   createItem,
+  createItemWithCompany,
   setArchived,
   type Author,
 } from '../../src/db';
@@ -119,5 +120,46 @@ describe('local catalog (M1-1)', () => {
     const second = freshDb(name);
     expect(await second.companies.get(company.id)).toEqual(company);
     expect(await second.outbox.count()).toBe(1);
+  });
+});
+
+describe('"Not in list? Add new" saving (M2-6)', () => {
+  it('makes a new company and its item together', async () => {
+    const db = freshDb();
+    const item = await createItemWithCompany(db, staffAuthor, '  Finolex ', { name_hi: 'पाइप', size: '1 inch', price_paise: 9_000 });
+    const [company] = await db.companies.toArray();
+    expect(company).toMatchObject({ name: 'Finolex', staff_id: 'staff-ramesh' });
+    expect(item).toMatchObject({ company_id: company?.id, name_hi: 'पाइप', needs_review: true });
+    expect((await db.outbox.toArray()).map((e) => e.table)).toEqual(['companies', 'items']);
+  });
+
+  it('uses the existing company when the typed name matches, ignoring case', async () => {
+    const db = freshDb();
+    const finolex = await createCompany(db, ownerAuthor, { name: 'Finolex' });
+    const item = await createItemWithCompany(db, staffAuthor, 'FINOLEX', { name_en: 'Pipe', price_paise: 9_000 });
+    expect(item.company_id).toBe(finolex.id);
+    expect(await db.companies.count()).toBe(1);
+  });
+
+  it('brings back an archived company of that name', async () => {
+    const db = freshDb();
+    const old = await createCompany(db, ownerAuthor, { name: 'Finolex' });
+    await setArchived(db, 'companies', old.id, true);
+    await createItemWithCompany(db, staffAuthor, 'finolex', { name_en: 'Pipe', price_paise: 9_000 });
+    expect((await activeCompanies(db)).map((c) => c.id)).toEqual([old.id]);
+  });
+
+  it('a refused item leaves no stray new company', async () => {
+    const db = freshDb();
+    await expect(createItemWithCompany(db, staffAuthor, 'Finolex', { name_en: ' ', price_paise: 100 })).rejects.toThrow();
+    const acc = await createCompany(db, ownerAuthor, { name: 'ACC' });
+    await createItem(db, ownerAuthor, { company_id: acc.id, name_en: 'Cement', price_paise: 100 });
+    await expect(createItemWithCompany(db, staffAuthor, 'acc', { name_en: 'CEMENT', price_paise: 200 })).rejects.toBeInstanceOf(DuplicateError);
+    db.outbox.hook('creating', () => {
+      throw new Error('disk full');
+    });
+    await expect(createItemWithCompany(db, staffAuthor, 'Finolex', { name_en: 'Pipe', price_paise: 100 })).rejects.toThrow();
+    expect((await db.companies.toArray()).map((c) => c.name)).toEqual(['ACC']);
+    expect(await db.items.count()).toBe(1);
   });
 });

@@ -18,7 +18,7 @@ type View =
   | { name: 'companies' }
   | { name: 'addCompany' }
   | { name: 'company'; company: CompanyRow }
-  | { name: 'addItem'; company: CompanyRow }
+  | { name: 'addItem'; company: CompanyRow | null; from: View; initialName: string }
   | { name: 'review'; from: View }
   | { name: 'pay'; from: View };
 
@@ -47,6 +47,11 @@ export function Billing({ onManage, onSaved }: Props) {
     setBill(next);
   };
   const pick = (item: ItemRow) => change(addItem(bill, item));
+  // Anything added while billing is being sold, so it goes straight on the bill (SPEC §3.1A.4).
+  const addNew = (company: CompanyRow | null) => {
+    setView({ name: 'addItem', company, from: view, initialName: query.trim() });
+    setQuery('');
+  };
   const review = () => {
     setQuery('');
     if (view.name !== 'review') setView({ name: 'review', from: view });
@@ -82,10 +87,21 @@ export function Billing({ onManage, onSaved }: Props) {
         return <AddCompanyForm onSaved={open} onCancel={companies} />;
       case 'company':
         return (
-          <ItemGrid company={view.company} onAdd={() => setView({ name: 'addItem', company: view.company })} onPick={pick} onBack={companies} badge={badge} />
+          <ItemGrid company={view.company} onAdd={() => addNew(view.company)} onPick={pick} onBack={companies} badge={badge} />
         );
       case 'addItem':
-        return <AddItemForm company={view.company} onSaved={() => open(view.company)} onCancel={() => open(view.company)} />;
+        return (
+          <AddItemForm
+            company={view.company}
+            initialName={view.initialName}
+            title={t.notInList}
+            onSaved={(item) => {
+              pick(item);
+              setView(view.from);
+            }}
+            onCancel={() => setView(view.from)}
+          />
+        );
       case 'review':
         return (
           <BillReview
@@ -120,6 +136,12 @@ export function Billing({ onManage, onSaved }: Props) {
           </button>
         )}
       </div>
+      {view.name !== 'addItem' && view.name !== 'addCompany' && (
+        <button type="button" class="btn not-in-list" onClick={() => addNew(view.name === 'company' ? view.company : null)}>
+          <Icon name="plus" />
+          {t.notInList}
+        </button>
+      )}
       {body()}
       <button type="button" class="btn manage-link" onClick={onManage}>
         <Icon name="edit" />

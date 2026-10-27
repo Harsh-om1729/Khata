@@ -282,3 +282,87 @@ describe('cash payment and save (M2-5)', () => {
     expect(screen.getByTestId('pay-total').textContent).toBe('₹760');
   });
 });
+
+describe('"Not in list? Add new" during billing (M2-6)', () => {
+  const typeIn = (label: string, value: string) => fireEvent.input(screen.getByLabelText(label), { target: { value } });
+
+  it('from a search that found nothing: the typed name is filled in, the item is saved and put on the bill', async () => {
+    await unlock();
+    fireEvent.input(screen.getByPlaceholderText(hi.search), { target: { value: 'पेंट' } });
+    expect(await screen.findByText(hi.searchNone)).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: hi.notInList }));
+
+    expect((screen.getByLabelText(hi.itemNameHi) as HTMLInputElement).value).toBe('पेंट');
+    fireEvent.click(screen.getByRole('button', { name: hi.save }));
+    expect(await screen.findByText(hi.errorChooseCompany)).toBeTruthy();
+
+    const acc = (await screen.findByRole('option', { name: 'ACC' })) as HTMLOptionElement;
+    fireEvent.change(screen.getByLabelText(hi.companyName), { target: { value: acc.value } });
+    typeIn(hi.itemSize, '1 litre');
+    typeIn(hi.itemPrice, '260');
+    fireEvent.click(screen.getByRole('button', { name: hi.save }));
+
+    expect(await screen.findByText(hi.companies)).toBeTruthy();
+    expect(total()).toBe('₹260');
+    const paint = (await db.items.toArray()).find((i) => i.name_hi === 'पेंट');
+    expect(paint).toMatchObject({ size: '1 litre', price_paise: 26_000, needs_review: true, staff_id: 'staff-ramesh' });
+    expect((screen.getByPlaceholderText(hi.search) as HTMLInputElement).value).toBe('');
+  });
+
+  it('with a new company typed in, makes the company too', async () => {
+    await unlock();
+    fireEvent.click(screen.getByRole('button', { name: hi.notInList }));
+    fireEvent.change(screen.getByLabelText(hi.companyName), { target: { value: '__new__' } });
+    typeIn(hi.newCompanyName, 'Asian Paints');
+    typeIn(hi.itemNameEn, 'Primer');
+    typeIn(hi.itemPrice, '180');
+    fireEvent.click(screen.getByRole('button', { name: hi.save }));
+
+    expect(await screen.findByRole('button', { name: /Asian Paints/ })).toBeTruthy();
+    expect(total()).toBe('₹180');
+    expect(count()).toBe(`1 ${hi.billItems}`);
+  });
+
+  it('inside a company it uses that company, and + Item there also puts the new item on the bill', async () => {
+    await unlock();
+    fireEvent.click(await screen.findByRole('button', { name: /Ultratech/ }));
+    fireEvent.click(screen.getByRole('button', { name: hi.notInList }));
+    expect(screen.queryByLabelText(hi.companyName)).toBeNull();
+    typeIn(hi.itemNameHi, 'सीमेंट');
+    typeIn(hi.itemSize, '10kg');
+    typeIn(hi.itemPrice, '90');
+    fireEvent.click(screen.getByRole('button', { name: hi.save }));
+    expect((await tile('10kg')).textContent).toContain(`${hi.onBill} 1`);
+
+    fireEvent.click(screen.getByRole('button', { name: hi.addItem }));
+    typeIn(hi.itemNameHi, 'सीमेंट');
+    typeIn(hi.itemSize, '3kg');
+    typeIn(hi.itemPrice, '50');
+    fireEvent.click(screen.getByRole('button', { name: hi.save }));
+    expect((await tile('3kg')).textContent).toContain(`${hi.onBill} 1`);
+    expect(total()).toBe('₹140');
+  });
+
+  it('"remove last" takes the new item off the bill, and the item stays in the list', async () => {
+    await unlock();
+    fireEvent.click(await screen.findByRole('button', { name: /Ultratech/ }));
+    fireEvent.click(screen.getByRole('button', { name: hi.notInList }));
+    typeIn(hi.itemNameHi, 'सीमेंट');
+    typeIn(hi.itemSize, '10kg');
+    typeIn(hi.itemPrice, '90');
+    fireEvent.click(screen.getByRole('button', { name: hi.save }));
+    await tile('10kg');
+    fireEvent.click(screen.getByRole('button', { name: hi.undo }));
+    expect(total()).toBe('₹0');
+    expect((await tile('10kg')).textContent).not.toContain(hi.onBill);
+  });
+
+  it('back from the form changes nothing', async () => {
+    await unlock();
+    fireEvent.click(screen.getByRole('button', { name: hi.notInList }));
+    fireEvent.click(screen.getByRole('button', { name: hi.back }));
+    expect(await screen.findByText(hi.companies)).toBeTruthy();
+    expect(await db.items.count()).toBe(3);
+    expect(total()).toBe('₹0');
+  });
+});

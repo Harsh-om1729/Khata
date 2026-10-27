@@ -160,4 +160,9 @@ export const hi = {
   billSavedOnPhone: 'बिल इस फ़ोन पर सेव हुआ।',
   billNo: 'बिल नंबर',
   errorNoLetter: 'यह फ़ोन अभी मंज़ूर नहीं है, इसलिए बिल नहीं बन सकता। मालिक से मंज़ूरी लें।',
+  notInList: 'सूची में नहीं? नया जोड़ें',
+  chooseCompany: 'कंपनी चुनें',
+  newCompany: 'नई कंपनी',
+  newCompanyName: 'नई कंपनी का नाम',
+  errorChooseCompany: 'कंपनी चुनें या नई कंपनी का नाम लिखें',
 } as const;

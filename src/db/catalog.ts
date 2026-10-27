@@ -54,16 +54,13 @@ export async function createCompany(db: KhataDb, author: Author, input: NewCompa
   return row;
 }
 
-export async function createItem(db: KhataDb, author: Author, input: NewItem, photo?: Blob): Promise<ItemRow> {
+function newItemRow(author: Author, input: NewItem): ItemRow {
   const name_hi = (input.name_hi ?? '').trim();
   const name_en = (input.name_en ?? '').trim();
   if (name_hi === '' && name_en === '') throw new Error('item needs a Hindi or English name');
   if (!isValidPaise(input.price_paise)) throw new Error('price must be whole paise, 0 or more');
-  const stamp = stampRecord(author.staff, author.deviceId);
-  // Read the photo before the transaction: waiting on anything else inside one makes it commit early.
-  const picture = photo ? await pictureRow(photo, stamp.created_at) : null;
-  const row: ItemRow = {
-    ...stamp,
+  return {
+    ...stampRecord(author.staff, author.deviceId),
     server_at: null,
     company_id: input.company_id,
     name_hi,
@@ -77,20 +74,61 @@ export async function createItem(db: KhataDb, author: Author, input: NewItem, ph
     needs_review: !author.staff?.is_owner,
     archived: false,
   };
-  await db.transaction('rw', db.allTables(), async () => {
-    if (!(await db.companies.get(row.company_id))) throw new Error('company not found');
-    const key = itemKey(row);
-    const siblings = await db.items.where('company_id').equals(row.company_id).toArray();
-    if (siblings.some((s) => itemKey(s) === key)) throw new DuplicateError('item');
-    const writes: Write[] = [];
-    if (picture) {
-      row.picture = picture.path;
-      writes.push({ table: 'pictures', row: picture });
-    }
-    writes.push({ table: 'items', row });
-    await putWithOutbox(db, writes);
-  });
+}
+
+/** Runs inside a transaction over all tables. */
+async function insertItem(db: KhataDb, row: ItemRow, picture: PictureRow | null): Promise<void> {
+  if (!(await db.companies.get(row.company_id))) throw new Error('company not found');
+  const key = itemKey(row);
+  const siblings = await db.items.where('company_id').equals(row.company_id).toArray();
+  if (siblings.some((s) => itemKey(s) === key)) throw new DuplicateError('item');
+  const writes: Write[] = [];
+  if (picture) {
+    row.picture = picture.path;
+    writes.push({ table: 'pictures', row: picture });
+  }
+  writes.push({ table: 'items', row });
+  await putWithOutbox(db, writes);
+}
+
+export async function createItem(db: KhataDb, author: Author, input: NewItem, photo?: Blob): Promise<ItemRow> {
+  const row = newItemRow(author, input);
+  // Read the photo before the transaction: waiting on anything else inside one makes it commit early.
+  const picture = photo ? await pictureRow(photo, row.created_at) : null;
+  await db.transaction('rw', db.allTables(), () => insertItem(db, row, picture));
   return row;
+}
+
+/**
+ * Adds an item to the company with this name, making the company first if there is none
+ * ("Not in list? Add new", SPEC §3.1A.4). One transaction, so a refused item never leaves a stray company.
+ * An archived company of that name is brought back, since someone is selling from it again.
+ */
+export async function createItemWithCompany(
+  db: KhataDb,
+  author: Author,
+  companyName: string,
+  input: Omit<NewItem, 'company_id'>,
+  photo?: Blob,
+): Promise<ItemRow> {
+  const name = companyName.trim();
+  if (name.length < 1 || name.length > 80) throw new Error('company name must be 1 to 80 characters');
+  const draft = newItemRow(author, { ...input, company_id: '' });
+  const picture = photo ? await pictureRow(photo, draft.created_at) : null;
+  return db.transaction('rw', db.allTables(), async () => {
+    const lower = name.toLowerCase();
+    let company = await db.companies.filter((c) => c.name.toLowerCase() === lower).first();
+    if (!company) {
+      company = { ...stampRecord(author.staff, author.deviceId), server_at: null, name, picture: null, archived: false };
+      await putWithOutbox(db, [{ table: 'companies', row: company }]);
+    } else if (company.archived) {
+      company = { ...company, archived: false, server_at: null };
+      await putWithOutbox(db, [{ table: 'companies', row: company }]);
+    }
+    const row: ItemRow = { ...draft, company_id: company.id };
+    await insertItem(db, row, picture);
+    return row;
+  });
 }
 
 async function pictureRow(blob: Blob, created_at: string): Promise<PictureRow> {

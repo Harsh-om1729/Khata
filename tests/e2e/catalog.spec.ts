@@ -137,6 +137,11 @@ test('billing offline: tap items and search, and the bill strip shows the runnin
     await page.getByLabel(hi.itemPrice).fill(price);
     await page.getByRole('button', { name: hi.save }).click();
   }
+  // Items added while billing go on the bill (M2-6); take them off to start this bill clean.
+  await expect(page.getByTestId('bill-total')).toHaveText('₹580');
+  await page.getByRole('button', { name: hi.undo }).click();
+  await page.getByRole('button', { name: hi.undo }).click();
+  await expect(page.getByTestId('bill-total')).toHaveText('₹0');
 
   const tile = (text: string) => page.getByTestId('item-tile').filter({ hasText: text }).getByRole('button').first();
   await tile('50kg').click();
@@ -165,4 +170,28 @@ test('billing offline: tap items and search, and the bill strip shows the runnin
   await expect(line.getByTestId('line-sum')).toHaveText('₹370 × 2.5 = ₹925');
   await expect(page.getByTestId('bill-total')).toHaveText('₹925');
   await expect(line.getByTestId('price-changed')).toContainText('₹380');
+});
+
+test('"Not in list? Add new" offline: a new company and item go straight on the bill', async ({ page }) => {
+  await fakeBackend(page);
+  await page.goto('/');
+  await expect(page.getByText(hi.deviceApproved)).toBeVisible();
+  await unlock(page);
+  await page.context().setOffline(true);
+
+  await page.getByPlaceholder(hi.search).fill('पेंट ब्रश');
+  await expect(page.getByText(hi.searchNone)).toBeVisible();
+  await page.getByRole('button', { name: hi.notInList }).click();
+  await expect(page.getByLabel(hi.itemNameHi)).toHaveValue('पेंट ब्रश');
+  await page.getByLabel(hi.companyName).selectOption('__new__');
+  await page.getByLabel(hi.newCompanyName).fill('Asian Paints');
+  await page.getByLabel(hi.itemSize).fill('2 inch');
+  await page.getByLabel(hi.itemPrice).fill('45');
+  await page.getByRole('button', { name: hi.save }).click();
+
+  await expect(page.getByTestId('bill-total')).toHaveText('₹45');
+  await page.getByRole('button', { name: /Asian Paints/ }).click();
+  const tile = page.getByTestId('item-tile').filter({ hasText: '2 inch' });
+  await expect(tile).toContainText(`${hi.onBill} 1`);
+  await expect(tile).toContainText(hi.needsReview);
 });

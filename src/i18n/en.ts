@@ -162,4 +162,9 @@ export const en: Messages = {
   billSavedOnPhone: 'Bill saved on this phone.',
   billNo: 'Bill number',
   errorNoLetter: 'This phone is not approved yet, so it cannot make bills. Ask the owner to approve it.',
+  notInList: 'Not in list? Add new',
+  chooseCompany: 'Choose company',
+  newCompany: 'New company',
+  newCompanyName: 'New company name',
+  errorChooseCompany: 'Choose a company or write a new company name',
 };
