@@ -167,4 +167,8 @@ export const en: Messages = {
   newCompany: 'New company',
   newCompanyName: 'New company name',
   errorChooseCompany: 'Choose a company or write a new company name',
+  storageNotKept: 'Note: this phone is not keeping the app data for sure. When space is low, the phone may delete bills. Install the app to the home screen and keep internet on.',
+  billsOnlyOnPhone: 'bills are only on this phone, not in the cloud.',
+  oldestBill: 'Oldest bill saved',
+  unsyncedHelp: 'Turn on internet. If the phone data is cleared or the phone is lost, these bills are gone.',
 };

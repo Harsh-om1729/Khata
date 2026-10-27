@@ -2,6 +2,7 @@ import { useMemo, useState } from 'preact/hooks';
 import { createDeviceAdmin, createOwnerAuth } from './auth';
 import { createStaffAdmin } from './auth/staff-admin';
 import { KhataDb } from './db';
+import { createStorageGuard } from './db/persist';
 import { I18nProvider } from './i18n';
 import { Home } from './screens/Home';
 import { OwnerHome } from './screens/OwnerHome';
@@ -52,6 +53,7 @@ export function App({ services }: { services?: Partial<Services> }) {
         createStaffLogin({ vault, lock: createPinLock(browserStore), verifier: createPinVerifier() }),
       staffAdmin: services?.staffAdmin ?? createStaffAdmin(),
       db: services?.db ?? new KhataDb(),
+      storage: services?.storage ?? createStorageGuard(),
       loadExcel: services?.loadExcel ?? (() => import('./excel/workbook')),
     };
   }, [services]);

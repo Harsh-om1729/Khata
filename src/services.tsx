@@ -4,6 +4,7 @@ import { useContext } from 'preact/hooks';
 import type { DeviceAdmin } from './auth/device-admin';
 import type { StaffAdmin } from './auth/staff-admin';
 import type { KhataDb } from './db';
+import type { StorageGuard } from './db/persist';
 import type * as Workbook from './excel/workbook';
 import type { OwnerAuth } from './auth/types';
 import type { StaffDirectory } from './staff/server';
@@ -19,6 +20,7 @@ export interface Services {
   staffLogin: StaffLogin;
   staffAdmin: StaffAdmin;
   db: KhataDb;
+  storage: StorageGuard;
   /** Loads the Excel code on demand; it is too big to ship in the app's start-up code. */
   loadExcel: () => Promise<typeof Workbook>;
 }

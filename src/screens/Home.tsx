@@ -4,6 +4,7 @@ import { LangSwitch } from '../components/LangSwitch';
 import { OwnerButton } from '../components/OwnerButton';
 import { SavedNotice } from '../components/SavedNotice';
 import { StaffArea } from '../components/StaffArea';
+import { StorageWarnings } from '../components/StorageWarnings';
 import type { BillRow } from '../db';
 import { useI18n } from '../i18n';
 import { useStaffSession } from '../staff/session';
@@ -31,6 +32,7 @@ export function Home({ onOwner }: { onOwner: () => void }) {
         <LangSwitch />
       </header>
       <DeviceStatusBar />
+      <StorageWarnings />
       {/* Hidden while working, so the item tiles start higher on small screens. */}
       {!session.active && <h1>{t.appReady}</h1>}
       {!session.active && saved && <SavedNotice bill={saved} />}

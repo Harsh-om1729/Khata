@@ -30,7 +30,7 @@ Each task lists the spec it implements and what "done" means.
 - [x] M2-4 Bill numbers per device per day. *PLAN §3.* *Done:* two devices never clash (tested).
 - [x] M2-5 Cash payment, save, atomic write with outbox. *DATA-SAFETY §1.* *Done:* killing the app mid-save leaves no half bill.
 - [x] M2-6 "Not in list? Add new" during billing, marked "new, check". *SPEC §3.1A.*
-- [ ] M2-7 Persistent storage request and warnings. *DATA-SAFETY §1.*
+- [x] M2-7 Persistent storage request and warnings. *DATA-SAFETY §1.*
 - [ ] M2-8 Bill history list and on-screen bill view.
 
 ## M3 Sync
