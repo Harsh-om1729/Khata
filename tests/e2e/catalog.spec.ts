@@ -153,4 +153,16 @@ test('billing offline: tap items and search, and the bill strip shows the runnin
   await page.getByRole('button', { name: hi.undo }).click();
   await expect(page.getByTestId('bill-total')).toHaveText('₹760');
   await expect(page.getByTestId('bill-total')).toBeInViewport();
+
+  await page.getByRole('button', { name: hi.seeBill }).click();
+  const line = page.getByTestId('bill-line');
+  await line.getByRole('button', { name: hi.typeQty }).click();
+  await page.getByLabel(hi.typeQty).fill('2.5');
+  await page.getByRole('button', { name: hi.ok }).click();
+  await line.getByRole('button', { name: hi.changeLinePrice }).click();
+  await page.getByLabel(hi.linePrice).fill('370');
+  await page.getByRole('button', { name: hi.ok }).click();
+  await expect(line.getByTestId('line-sum')).toHaveText('₹370 × 2.5 = ₹925');
+  await expect(page.getByTestId('bill-total')).toHaveText('₹925');
+  await expect(line.getByTestId('price-changed')).toContainText('₹380');
 });

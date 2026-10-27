@@ -69,3 +69,8 @@ export function billTotal(bill: DraftBill): number {
   if (!Number.isSafeInteger(total)) throw new Error('bill total too large');
   return total;
 }
+
+/** After "make this the new default": the line's price is now the item's price, so it is no longer marked as changed. */
+export function setLineDefault(bill: DraftBill, lineId: string, pricePaise: number): DraftBill {
+  return updateLine(bill, lineId, (l) => ({ ...l, default_price_paise: pricePaise }));
+}

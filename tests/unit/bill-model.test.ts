@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   ONE, addItem, billRecords, billTotal, draftLineTotal, emptyBill, formatQty, isPriceChanged, lineTotal,
-  parseQty, removeLine, setLinePrice, setQty, snapshotName,
+  parseQty, removeLine, setLineDefault, setLinePrice, setQty, snapshotName,
 } from '../../src/bill';
 import type { ItemRow } from '../../src/db';
 import type { StaffMember } from '../../src/staff/types';
@@ -99,6 +99,16 @@ describe('draft bill (M2-1)', () => {
     expect(isPriceChanged(bill.lines[0] ?? line)).toBe(true);
     expect(cement.price_paise).toBe(38_000);
     expect(billTotal(bill)).toBe(37_500);
+  });
+
+  it('after "make this the new default" the line is no longer marked as changed', () => {
+    let bill = addItem(emptyBill(), cement);
+    const id = bill.lines[0]?.id ?? '';
+    bill = setLineDefault(setLinePrice(bill, id, 39_000), id, 39_000);
+    const [line] = bill.lines;
+    if (!line) throw new Error('missing line');
+    expect(line).toMatchObject({ unit_price_paise: 39_000, default_price_paise: 39_000 });
+    expect(isPriceChanged(line)).toBe(false);
   });
 
   it('removes a line, and never changes the bill it was given', () => {

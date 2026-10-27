@@ -124,3 +124,86 @@ describe('billing screen (M2-2)', () => {
     expect(screen.queryByTestId('bill-total')).toBeNull();
   });
 });
+
+describe('bill review: quantity, price for this sale, new default (M2-3)', () => {
+  async function billWithCement() {
+    await unlock();
+    fireEvent.click(await screen.findByRole('button', { name: /Ultratech/ }));
+    await tap('50kg');
+    fireEvent.click(screen.getByRole('button', { name: hi.seeBill }));
+    return screen.findByTestId('bill-line');
+  }
+  const typeIn = (label: RegExp | string, value: string) => fireEvent.input(screen.getByLabelText(label), { target: { value } });
+
+  it('+ and − change the quantity by one, never below one', async () => {
+    const line = await billWithCement();
+    expect(within(line).getByTestId('line-qty').textContent).toBe(`1 ${hi.unitBag}`);
+    expect((within(line).getByRole('button', { name: hi.lessOne }) as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.click(within(line).getByRole('button', { name: hi.moreOne }));
+    fireEvent.click(within(line).getByRole('button', { name: hi.moreOne }));
+    expect(within(line).getByTestId('line-qty').textContent).toBe(`3 ${hi.unitBag}`);
+    expect(total()).toBe('₹1,140');
+    fireEvent.click(within(line).getByRole('button', { name: hi.lessOne }));
+    expect(total()).toBe('₹760');
+  });
+
+  it('types a part quantity like 2.5, and explains a wrong one', async () => {
+    const line = await billWithCement();
+    fireEvent.click(within(line).getByRole('button', { name: hi.typeQty }));
+    typeIn(new RegExp(hi.typeQty), 'abc');
+    fireEvent.click(screen.getByRole('button', { name: hi.ok }));
+    expect(await screen.findByText(hi.errorQty)).toBeTruthy();
+    typeIn(new RegExp(hi.typeQty), '2.5');
+    fireEvent.click(screen.getByRole('button', { name: hi.ok }));
+    expect(within(line).getByTestId('line-sum').textContent).toBe('₹380 × 2.5 = ₹950');
+    expect(total()).toBe('₹950');
+  });
+
+  it('a price changed for this sale is marked in words and leaves the item price alone', async () => {
+    const line = await billWithCement();
+    fireEvent.click(within(line).getByRole('button', { name: hi.changeLinePrice }));
+    typeIn(hi.linePrice, '370');
+    fireEvent.click(screen.getByRole('button', { name: hi.ok }));
+    expect(total()).toBe('₹370');
+    expect(within(line).getByTestId('price-changed').textContent).toContain(`${hi.priceChangedForBill} ₹380`);
+    const cement = (await db.items.toArray()).find((i) => i.size === '50kg');
+    expect(cement?.price_paise).toBe(38_000);
+    expect(await db.price_changes.count()).toBe(0);
+  });
+
+  it('"make this the new price" saves it as the item price, logged with who changed it', async () => {
+    const line = await billWithCement();
+    fireEvent.click(within(line).getByRole('button', { name: hi.changeLinePrice }));
+    typeIn(hi.linePrice, '390');
+    fireEvent.click(screen.getByRole('button', { name: hi.ok }));
+    fireEvent.click(within(line).getByRole('button', { name: hi.makeDefault }));
+
+    expect(await within(line).findByText(hi.defaultSaved)).toBeTruthy();
+    expect(within(line).queryByTestId('price-changed')).toBeNull();
+    const cement = (await db.items.toArray()).find((i) => i.size === '50kg');
+    expect(cement?.price_paise).toBe(39_000);
+    expect(await db.price_changes.toArray()).toMatchObject([{ item_id: cement?.id, old_paise: 38_000, new_paise: 39_000, staff_id: 'staff-ramesh' }]);
+
+    fireEvent.click(screen.getByRole('button', { name: hi.addMore }));
+    expect((await tile('50kg')).textContent).toContain('₹390');
+  });
+
+  it('removes a line, and undo brings it back', async () => {
+    await billWithCement();
+    fireEvent.click(screen.getByRole('button', { name: hi.removeLine }));
+    expect(screen.queryByTestId('bill-line')).toBeNull();
+    expect(total()).toBe('₹0');
+    fireEvent.click(screen.getByRole('button', { name: hi.undo }));
+    expect(await screen.findByTestId('bill-line')).toBeTruthy();
+    expect(total()).toBe('₹380');
+  });
+
+  it('"add more items" goes back to where you were, and the bill keeps its lines', async () => {
+    await billWithCement();
+    expect(screen.queryByRole('button', { name: hi.seeBill })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: hi.addMore }));
+    await tap('25kg');
+    expect(count()).toBe(`2 ${hi.billItems}`);
+    expect(screen.getByRole('heading', { name: 'Ultratech' })).toBeTruthy();
+  });
+});
