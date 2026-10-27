@@ -8,9 +8,10 @@ import { Icon } from './Icon';
 interface Props {
   onOpen: (company: CompanyRow) => void;
   onAdd: () => void;
+  onExcel: () => void;
 }
 
-export function CompanyGrid({ onOpen, onAdd }: Props) {
+export function CompanyGrid({ onOpen, onAdd, onExcel }: Props) {
   const { t } = useI18n();
   const { db } = useServices();
   const companies = useLiveQuery(() => activeCompanies(db), [db]);
@@ -36,6 +37,10 @@ export function CompanyGrid({ onOpen, onAdd }: Props) {
         ))}
       </div>
       {companies.value?.length === 0 && <p class="hint">{t.companiesEmpty}</p>}
+      <button type="button" class="btn" onClick={onExcel}>
+        <Icon name="upload" />
+        {t.excelTitle}
+      </button>
     </section>
   );
 }

@@ -5,6 +5,8 @@ import { VitePWA } from 'vite-plugin-pwa';
 import { hi } from './src/i18n/hi.ts';
 
 export default defineConfig({
+  // Lets tests load the reference template and the 500-row sample with ?inline.
+  assetsInclude: ['**/*.xlsx'],
   plugins: [
     preact(),
     VitePWA({

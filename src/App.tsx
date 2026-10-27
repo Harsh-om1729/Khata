@@ -52,6 +52,7 @@ export function App({ services }: { services?: Partial<Services> }) {
         createStaffLogin({ vault, lock: createPinLock(browserStore), verifier: createPinVerifier() }),
       staffAdmin: services?.staffAdmin ?? createStaffAdmin(),
       db: services?.db ?? new KhataDb(),
+      loadExcel: services?.loadExcel ?? (() => import('./excel/workbook')),
     };
   }, [services]);
   return (

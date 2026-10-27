@@ -2,6 +2,7 @@ import { useState } from 'preact/hooks';
 import { AddCompanyForm } from '../components/AddCompanyForm';
 import { AddItemForm } from '../components/AddItemForm';
 import { CompanyGrid } from '../components/CompanyGrid';
+import { ExcelImport } from '../components/ExcelImport';
 import { ItemGrid } from '../components/ItemGrid';
 import { ItemPage } from '../components/ItemPage';
 import type { CompanyRow } from '../db';
@@ -9,6 +10,7 @@ import type { CompanyRow } from '../db';
 type View =
   | { name: 'companies' }
   | { name: 'addCompany' }
+  | { name: 'excel' }
   | { name: 'company'; company: CompanyRow }
   | { name: 'addItem'; company: CompanyRow }
   | { name: 'item'; company: CompanyRow; itemId: string };
@@ -20,7 +22,9 @@ export function Catalog() {
 
   switch (view.name) {
     case 'companies':
-      return <CompanyGrid onOpen={open} onAdd={() => setView({ name: 'addCompany' })} />;
+      return <CompanyGrid onOpen={open} onAdd={() => setView({ name: 'addCompany' })} onExcel={() => setView({ name: 'excel' })} />;
+    case 'excel':
+      return <ExcelImport onBack={companies} />;
     case 'addCompany':
       // A new company opens straight away, so its first item is one tap further.
       return <AddCompanyForm onSaved={open} onCancel={companies} />;
