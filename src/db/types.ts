@@ -59,6 +59,12 @@ export interface BillLineRow {
   server_at: string | null;
 }
 
+/** The last bill number used on this phone for one day. Kept forever, so a number is never given twice. */
+export interface BillCounterRow {
+  day: string;
+  last: number;
+}
+
 /** A compressed photo, kept under the same path it gets in cloud storage. Bytes, not a Blob, because Blobs in IndexedDB are unreliable on some phones. */
 export interface PictureRow {
   path: string;
