@@ -371,3 +371,69 @@ body {
   width: 28px;
   height: 28px;
 }
+
+.hint {
+  margin: 0;
+}
+
+.catalog {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.catalog h2 {
+  margin: 0;
+}
+
+.tile--add {
+  border-style: dashed;
+  color: var(--brand);
+}
+
+.tile__name {
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.tile__price {
+  font-size: 20px;
+}
+
+.units {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.units legend {
+  margin-bottom: 4px;
+  padding: 0;
+  font-weight: 700;
+}
+
+.unit {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 8px 12px;
+  border: 2px solid var(--text);
+  border-radius: 10px;
+  font-weight: 700;
+}
+
+.unit:has(input:checked) {
+  border-color: var(--brand);
+  border-width: 4px;
+  color: var(--brand);
+}
+
+.unit input {
+  width: 24px;
+  height: 24px;
+}

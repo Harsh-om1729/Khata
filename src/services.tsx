@@ -3,12 +3,13 @@ import type { ComponentChildren } from 'preact';
 import { useContext } from 'preact/hooks';
 import type { DeviceAdmin } from './auth/device-admin';
 import type { StaffAdmin } from './auth/staff-admin';
+import type { KhataDb } from './db';
 import type { OwnerAuth } from './auth/types';
 import type { StaffDirectory } from './staff/server';
 import type { StaffLogin } from './staff/staff-login';
 import type { DeviceRegistration } from './sync/device-registration';
 
-/** Everything that talks to the cloud, injected so screens can be tested with fakes. */
+/** Everything that talks to the cloud or the phone's storage, injected so screens can be tested with fakes. */
 export interface Services {
   ownerAuth: OwnerAuth;
   device: DeviceRegistration;
@@ -16,6 +17,7 @@ export interface Services {
   staffDirectory: StaffDirectory;
   staffLogin: StaffLogin;
   staffAdmin: StaffAdmin;
+  db: KhataDb;
 }
 
 const ServicesContext = createContext<Services | null>(null);

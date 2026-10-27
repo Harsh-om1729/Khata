@@ -16,8 +16,8 @@ Each task lists the spec it implements and what "done" means.
 - [ ] M0-7 Staff tiles + PIN + auto-lock (after every saved bill, wired in M2-5; and on app close); owner staff screen (add, reset PIN, remove); staff recorded on records. First login on a phone is checked by the server RPC; the phone then stores its own PBKDF2 hash for offline unlock; 5 wrong offline tries lock the PIN screen for 5 minutes; a newer `pin_version` or a removal clears the phone's hash on sync. *SPEC §2, §2.1; PLAN §5.* *Done:* the active staff ID is attached to a test record. Tests: offline unlock works after one online login; a new staff member cannot unlock offline on a phone they never used online; the lockout works; a PIN change or removal synced to the phone clears offline unlock.
 
 ## M1 Items
-- [ ] M1-1 Dexie schema for companies and items, with UUIDs and the outbox table. *PLAN §3–4.*
-- [ ] M1-2 Company grid with **+ Company**, company page with **+ Item**, short add form. *SPEC §3.1A.* *Done:* add a company and an item in under 30 seconds.
+- [x] M1-1 Dexie schema for companies and items, with UUIDs and the outbox table. *PLAN §3–4.*
+- [x] M1-2 Company grid with **+ Company**, company page with **+ Item**, short add form. *SPEC §3.1A.* *Done:* add a company and an item in under 30 seconds.
 - [ ] M1-3 Item pictures from the phone camera, compressed. *SPEC §8.* *Done:* an item with and without a picture both render.
 - [ ] M1-4 Price change with a log (who, when, old, new). *SPEC §3.*
 - [ ] M1-5 Excel template download and import with preview (added/updated/skipped, row errors). *SPEC §3.1B.* *Done:* the 500-row sample imports; re-upload creates no duplicates.
