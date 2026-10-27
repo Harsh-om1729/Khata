@@ -91,4 +91,9 @@ export const hi = {
   errorDuplicateItem: 'यह सामान इसी साइज़ में पहले से है',
   saveFailed: 'सेव नहीं हुआ। फिर से कोशिश करें।',
   loadFailed: 'सूची नहीं खुली। ऐप बंद करके फिर खोलें।',
+  takePhoto: 'फ़ोटो लें',
+  changePhoto: 'फ़ोटो बदलें',
+  photoSaving: 'फ़ोटो सेव हो रही है…',
+  photoFailed: 'फ़ोटो नहीं बनी। फिर से लें।',
+  photoAdded: 'फ़ोटो लग गई',
 } as const;

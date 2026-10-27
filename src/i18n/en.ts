@@ -93,4 +93,9 @@ export const en: Messages = {
   errorDuplicateItem: 'This item already exists in this size',
   saveFailed: 'Not saved. Try again.',
   loadFailed: 'The list did not open. Close the app and open it again.',
+  takePhoto: 'Take photo',
+  changePhoto: 'Change photo',
+  photoSaving: 'Saving photo…',
+  photoFailed: 'The photo did not work. Take it again.',
+  photoAdded: 'Photo added',
 };

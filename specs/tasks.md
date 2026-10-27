@@ -18,7 +18,7 @@ Each task lists the spec it implements and what "done" means.
 ## M1 Items
 - [x] M1-1 Dexie schema for companies and items, with UUIDs and the outbox table. *PLAN §3–4.*
 - [x] M1-2 Company grid with **+ Company**, company page with **+ Item**, short add form. *SPEC §3.1A.* *Done:* add a company and an item in under 30 seconds.
-- [ ] M1-3 Item pictures from the phone camera, compressed. *SPEC §8.* *Done:* an item with and without a picture both render.
+- [x] M1-3 Item pictures from the phone camera, compressed. *SPEC §8.* *Done:* an item with and without a picture both render.
 - [ ] M1-4 Price change with a log (who, when, old, new). *SPEC §3.*
 - [ ] M1-5 Excel template download and import with preview (added/updated/skipped, row errors). *SPEC §3.1B.* *Done:* the 500-row sample imports; re-upload creates no duplicates.
 - [ ] M1-6 Excel export of the price list and re-import of edited prices.

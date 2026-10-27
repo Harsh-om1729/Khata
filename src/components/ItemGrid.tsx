@@ -1,4 +1,4 @@
-import { activeItems, type CompanyRow } from '../db';
+import { activeItems, setItemPicture, type CompanyRow } from '../db';
 import { useLiveQuery } from '../db/live';
 import { useI18n } from '../i18n';
 import { itemName } from '../i18n/item-name';
@@ -6,6 +6,8 @@ import { formatRupees } from '../money';
 import { useServices } from '../services';
 import { Alert } from './Alert';
 import { Icon } from './Icon';
+import { ItemPicture } from './ItemPicture';
+import { PhotoButton } from './PhotoButton';
 
 interface Props {
   company: CompanyRow;
@@ -38,13 +40,17 @@ export function ItemGrid({ company, onAdd, onBack }: Props) {
         </button>
         {sorted?.map((item) => (
           <div key={item.id} class="tile" data-testid="item-tile">
-            <span class="tile__avatar" aria-hidden="true">
-              {itemName(item, lang).charAt(0)}
-            </span>
+            <ItemPicture path={item.picture} name={itemName(item, lang)} />
             <span class="tile__name">{itemName(item, lang)}</span>
             {item.size && <span>{item.size}</span>}
             <span class="tile__price">{formatRupees(item.price_paise)}</span>
             {item.needs_review && <span class="tile__badge">{t.needsReview}</span>}
+            <PhotoButton
+              label={item.picture ? t.changePhoto : t.takePhoto}
+              onPhoto={async (photo) => {
+                await setItemPicture(db, item.id, photo);
+              }}
+            />
           </div>
         ))}
       </div>

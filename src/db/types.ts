@@ -28,6 +28,16 @@ export interface ItemRow extends Synced {
   archived: boolean;
 }
 
+/** A compressed photo, kept under the same path it gets in cloud storage. Bytes, not a Blob, because Blobs in IndexedDB are unreliable on some phones. */
+export interface PictureRow {
+  path: string;
+  bytes: ArrayBuffer;
+  type: string;
+  created_at: string;
+}
+
 export type OutboxEntry =
   | { seq?: number; table: 'companies'; row: CompanyRow; queued_at: string }
-  | { seq?: number; table: 'items'; row: ItemRow; queued_at: string };
+  | { seq?: number; table: 'items'; row: ItemRow; queued_at: string }
+  // Points at the pictures table instead of copying the photo into the queue.
+  | { seq?: number; table: 'pictures'; path: string; queued_at: string };

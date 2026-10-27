@@ -2,10 +2,12 @@ import { useState } from 'preact/hooks';
 import { DuplicateError, createItem, type CompanyRow, type ItemRow, type Unit } from '../db';
 import { useI18n } from '../i18n';
 import { parseRupees } from '../money';
+import { useObjectUrl } from '../pictures/use-object-url';
 import { useServices } from '../services';
 import { useAuthor } from '../staff/use-author';
 import { Alert } from './Alert';
 import { Icon } from './Icon';
+import { PhotoButton } from './PhotoButton';
 import { UnitPicker } from './UnitPicker';
 
 interface Props {
@@ -23,6 +25,8 @@ export function AddItemForm({ company, onSaved, onCancel }: Props) {
   const [size, setSize] = useState('');
   const [unit, setUnit] = useState<Unit>('piece');
   const [price, setPrice] = useState('');
+  const [photo, setPhoto] = useState<Blob | null>(null);
+  const photoUrl = useObjectUrl(photo);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -34,7 +38,7 @@ export function AddItemForm({ company, onSaved, onCancel }: Props) {
     setBusy(true);
     try {
       onSaved(
-        await createItem(db, author, { company_id: company.id, name_hi: nameHi, name_en: nameEn, size, unit, price_paise: paise }),
+        await createItem(db, author, { company_id: company.id, name_hi: nameHi, name_en: nameEn, size, unit, price_paise: paise }, photo ?? undefined),
       );
     } catch (e) {
       setError(e instanceof DuplicateError ? t.errorDuplicateItem : t.saveFailed);
@@ -72,6 +76,10 @@ export function AddItemForm({ company, onSaved, onCancel }: Props) {
         {t.itemPrice}
         <input inputMode="decimal" maxLength={12} value={price} onInput={(e) => setPrice(e.currentTarget.value)} />
       </label>
+      <div class="photo-field">
+        {photoUrl && <img class="photo-preview" src={photoUrl} alt={t.photoAdded} />}
+        <PhotoButton label={photo ? t.changePhoto : t.takePhoto} onPhoto={setPhoto} />
+      </div>
       <button type="submit" class="btn btn--primary" disabled={busy}>
         <Icon name="check" />
         {t.save}

@@ -1,8 +1,8 @@
 import type { StaffMember } from '../staff/types';
 import { stampRecord } from '../staff/stamp';
 import type { KhataDb } from './schema';
-import { putWithOutbox } from './outbox';
-import type { CompanyRow, ItemRow, Unit } from './types';
+import { putWithOutbox, type Write } from './outbox';
+import type { CompanyRow, ItemRow, PictureRow, Unit } from './types';
 
 export interface Author {
   staff: StaffMember | null;
@@ -29,7 +29,6 @@ export interface NewItem {
   unit?: Unit;
   price_paise: number;
   category?: string;
-  picture?: string | null;
 }
 
 /** Same rule as the server's unique index: Company + Item name (English, else Hindi) + Size, ignoring case. */
@@ -47,7 +46,7 @@ export async function createCompany(db: KhataDb, author: Author, input: NewCompa
   if (name.length < 1 || name.length > 80) throw new Error('company name must be 1 to 80 characters');
   const stamp = stampRecord(author.staff, author.deviceId);
   const row: CompanyRow = { ...stamp, server_at: null, name, picture: input.picture ?? null, archived: false };
-  await db.transaction('rw', db.companies, db.items, db.outbox, async () => {
+  await db.transaction('rw', db.catalogTables(), async () => {
     const lower = name.toLowerCase();
     if (await db.companies.filter((c) => c.name.toLowerCase() === lower).count()) throw new DuplicateError('company');
     await putWithOutbox(db, [{ table: 'companies', row }]);
@@ -55,12 +54,14 @@ export async function createCompany(db: KhataDb, author: Author, input: NewCompa
   return row;
 }
 
-export async function createItem(db: KhataDb, author: Author, input: NewItem): Promise<ItemRow> {
+export async function createItem(db: KhataDb, author: Author, input: NewItem, photo?: Blob): Promise<ItemRow> {
   const name_hi = (input.name_hi ?? '').trim();
   const name_en = (input.name_en ?? '').trim();
   if (name_hi === '' && name_en === '') throw new Error('item needs a Hindi or English name');
   if (!isValidPaise(input.price_paise)) throw new Error('price must be whole paise, 0 or more');
   const stamp = stampRecord(author.staff, author.deviceId);
+  // Read the photo before the transaction: waiting on anything else inside one makes it commit early.
+  const picture = photo ? await pictureRow(photo, stamp.created_at) : null;
   const row: ItemRow = {
     ...stamp,
     server_at: null,
@@ -71,24 +72,49 @@ export async function createItem(db: KhataDb, author: Author, input: NewItem): P
     unit: input.unit ?? 'piece',
     price_paise: input.price_paise,
     category: (input.category ?? '').trim(),
-    picture: input.picture ?? null,
+    picture: null,
     // SPEC §3.1A.5: items added by staff wait for the owner's check.
     needs_review: !author.staff?.is_owner,
     archived: false,
   };
-  await db.transaction('rw', db.companies, db.items, db.outbox, async () => {
+  await db.transaction('rw', db.catalogTables(), async () => {
     if (!(await db.companies.get(row.company_id))) throw new Error('company not found');
     const key = itemKey(row);
     const siblings = await db.items.where('company_id').equals(row.company_id).toArray();
     if (siblings.some((s) => itemKey(s) === key)) throw new DuplicateError('item');
-    await putWithOutbox(db, [{ table: 'items', row }]);
+    const writes: Write[] = [];
+    if (picture) {
+      row.picture = picture.path;
+      writes.push({ table: 'pictures', row: picture });
+    }
+    writes.push({ table: 'items', row });
+    await putWithOutbox(db, writes);
   });
   return row;
 }
 
+async function pictureRow(blob: Blob, created_at: string): Promise<PictureRow> {
+  const type = blob.type === 'image/webp' ? 'image/webp' : 'image/jpeg';
+  const ext = type === 'image/webp' ? 'webp' : 'jpg';
+  return { path: `items/${crypto.randomUUID()}.${ext}`, bytes: await blob.arrayBuffer(), type, created_at };
+}
+
+/** Gives an item a new photo. Photos are not money records, so the old one is dropped to save phone space. */
+export async function setItemPicture(db: KhataDb, itemId: string, photo: Blob, now = new Date()): Promise<ItemRow> {
+  const picture = await pictureRow(photo, now.toISOString());
+  return db.transaction('rw', db.catalogTables(), async () => {
+    const item = await db.items.get(itemId);
+    if (!item) throw new Error('item not found');
+    const row: ItemRow = { ...item, picture: picture.path, server_at: null };
+    await putWithOutbox(db, [{ table: 'pictures', row: picture }, { table: 'items', row }], now);
+    if (item.picture) await db.pictures.delete(item.picture);
+    return row;
+  });
+}
+
 /** Archive hides a company or item from billing; it is never deleted (SPEC §3.1A.6). */
 export async function setArchived(db: KhataDb, table: 'companies' | 'items', id: string, archived: boolean): Promise<void> {
-  await db.transaction('rw', db.companies, db.items, db.outbox, async () => {
+  await db.transaction('rw', db.catalogTables(), async () => {
     if (table === 'companies') {
       const row = await db.companies.get(id);
       if (!row) throw new Error('company not found');

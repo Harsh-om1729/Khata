@@ -59,3 +59,61 @@ test('add a company and an item in under 30 seconds, with no internet, and it is
   await expect(page.getByTestId('item-tile')).toContainText('सीमेंट');
   await expect(page.getByTestId('item-tile')).toContainText('50kg');
 });
+
+test('a camera photo is shrunk on the phone and shows on the item tile; an item without one shows its letter', async ({ page }) => {
+  await fakeBackend(page);
+  await page.goto('/');
+  await expect(page.getByText(hi.deviceApproved)).toBeVisible();
+  await unlock(page);
+  await page.context().setOffline(true);
+
+  await page.getByRole('button', { name: hi.addCompany }).click();
+  await page.getByLabel(hi.companyName).fill('Tata');
+  await page.getByRole('button', { name: hi.save }).click();
+  await page.getByRole('button', { name: hi.addItem }).click();
+  await page.getByLabel(hi.itemNameEn).fill('Rod');
+  await page.getByLabel(hi.itemPrice).fill('80');
+  await page.getByRole('button', { name: hi.save }).click();
+  await expect(page.getByTestId('item-tile')).toContainText('Rod');
+
+  await page.getByRole('button', { name: hi.addItem }).click();
+  await page.getByLabel(hi.itemNameEn).fill('Cement');
+  await page.getByLabel(hi.itemPrice).fill('420');
+
+  // Hands the camera input a camera-sized photo (4000×3000, over 1 MB), made in the browser.
+  const originalSize = await page.getByLabel(hi.takePhoto).evaluate(async (input: HTMLInputElement) => {
+    const canvas = new OffscreenCanvas(4000, 3000);
+    const context = canvas.getContext('2d');
+    if (!context) throw new Error('no canvas');
+    const gradient = context.createLinearGradient(0, 0, 4000, 3000);
+    gradient.addColorStop(0, '#884422');
+    gradient.addColorStop(1, '#2266aa');
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, 4000, 3000);
+    for (let i = 0; i < 20000; i++) {
+      context.fillStyle = `hsl(${i % 360} 60% ${30 + (i % 40)}%)`;
+      context.fillRect((i * 7919) % 4000, (i * 104729) % 3000, 8 + (i % 40), 8 + (i % 30));
+    }
+    const blob = await canvas.convertToBlob({ type: 'image/jpeg', quality: 0.92 });
+    const files = new DataTransfer();
+    files.items.add(new File([blob], 'photo.jpg', { type: 'image/jpeg' }));
+    input.files = files.files;
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+    return blob.size;
+  });
+  expect(originalSize).toBeGreaterThan(1_000_000);
+  await expect(page.getByAltText(hi.photoAdded)).toBeVisible();
+  await page.getByRole('button', { name: hi.save }).click();
+
+  const cement = page.getByTestId('item-tile').filter({ hasText: 'Cement' });
+  const rod = page.getByTestId('item-tile').filter({ hasText: 'Rod' });
+  const img = cement.locator('img.tile__photo');
+  await expect(img).toBeVisible();
+  await expect.poll(() => img.evaluate((el: HTMLImageElement) => el.naturalWidth)).toBe(480);
+  expect(await img.evaluate((el: HTMLImageElement) => el.naturalHeight)).toBe(360);
+  await expect(rod.locator('img')).toHaveCount(0);
+  await expect(rod.locator('.tile__avatar')).toHaveText('R');
+
+  const stored = await img.evaluate(async (el: HTMLImageElement) => (await (await fetch(el.src)).blob()).size);
+  expect(stored).toBeLessThan(150_000);
+});
