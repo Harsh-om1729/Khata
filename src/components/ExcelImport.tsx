@@ -49,6 +49,17 @@ export function ExcelImport({ onBack }: { onBack: () => void }) {
     (await workbook())?.downloadTemplate();
   };
 
+  const priceList = async () => {
+    setError(null);
+    const excel = await workbook();
+    if (!excel) return;
+    try {
+      excel.downloadPriceList(await db.companies.toArray(), await db.items.toArray());
+    } catch {
+      setError(t.saveFailed);
+    }
+  };
+
   const picked = async (input: HTMLInputElement) => {
     const file = input.files?.[0];
     input.value = '';
@@ -99,6 +110,11 @@ export function ExcelImport({ onBack }: { onBack: () => void }) {
           <button type="button" class="btn" onClick={() => void template()}>
             <Icon name="download" />
             {t.downloadTemplate}
+          </button>
+          <p class="hint">{t.priceListHowTo}</p>
+          <button type="button" class="btn" onClick={() => void priceList()}>
+            <Icon name="download" />
+            {t.downloadPriceList}
           </button>
           <label class="btn btn--primary">
             <Icon name="upload" />

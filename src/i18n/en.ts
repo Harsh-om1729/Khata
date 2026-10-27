@@ -128,4 +128,6 @@ export const en: Messages = {
   nothingToSave: 'Nothing new to save',
   importDone: 'Saved.',
   excelLoadFailed: 'The Excel part did not open. Turn on internet, then close and reopen the app.',
+  priceListHowTo: 'To change many prices at once: get the current price list in Excel, change prices on a computer, then choose that file below.',
+  downloadPriceList: 'Get current price list in Excel',
 };

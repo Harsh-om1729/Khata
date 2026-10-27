@@ -126,4 +126,6 @@ export const hi = {
   nothingToSave: 'सेव करने को कुछ नया नहीं है',
   importDone: 'सेव हो गया।',
   excelLoadFailed: 'Excel वाला हिस्सा नहीं खुला। इंटरनेट चालू करें और ऐप बंद करके फिर खोलें।',
+  priceListHowTo: 'बहुत सारे दाम एक साथ बदलने हों तो: अभी की दाम सूची Excel में लें, कंप्यूटर पर दाम बदलें, फिर नीचे से वही फ़ाइल चुनें।',
+  downloadPriceList: 'अभी की दाम सूची Excel में लें',
 } as const;

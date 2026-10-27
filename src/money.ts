@@ -13,3 +13,8 @@ export function formatRupees(paise: number): string {
   const whole = rupees.toLocaleString('en-IN');
   return rest === 0 ? `₹${whole}` : `₹${whole}.${String(rest).padStart(2, '0')}`;
 }
+
+/** 42050 → 420.5, for spreadsheet cells. Built from the paise digits, so it reads back to exactly the same paise. */
+export function rupeesNumber(paise: number): number {
+  return Number(`${Math.trunc(paise / 100)}.${String(paise % 100).padStart(2, '0')}`);
+}

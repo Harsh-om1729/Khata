@@ -77,3 +77,24 @@ test('a wrong file is refused with a clear message and nothing is saved', async 
   await page.getByLabel(hi.chooseExcel).setInputFiles('tests/fixtures/make-products-500.mjs');
   await expect(page.getByRole('alert')).toContainText(hi.excelWrongFile);
 });
+
+test('the downloaded price list uploads again as "no change" for every item', async ({ page }) => {
+  await unlockedOwner(page);
+  await page.getByLabel(hi.chooseExcel).setInputFiles(SAMPLE);
+  await page.getByRole('button', { name: `${hi.confirmImport} (500)` }).click();
+  await expect(page.getByText(hi.importDone)).toBeVisible();
+  await page.getByRole('button', { name: hi.back }).last().click();
+  await page.getByRole('button', { name: hi.excelTitle }).click();
+
+  const download = page.waitForEvent('download');
+  await page.getByRole('button', { name: hi.downloadPriceList }).click();
+  const file = await download;
+  expect(file.suggestedFilename()).toMatch(/^khata-price-list-\d{4}-\d{2}-\d{2}\.xlsx$/);
+  const path = await file.path();
+
+  await page.getByLabel(hi.chooseExcel).setInputFiles(path);
+  await expect(page.getByTestId('count-skip')).toHaveText('500');
+  await expect(page.getByTestId('count-add')).toHaveText('0');
+  await expect(page.getByTestId('count-update')).toHaveText('0');
+  await expect(page.getByTestId('count-errors')).toHaveText('0');
+});

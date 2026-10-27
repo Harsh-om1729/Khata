@@ -21,7 +21,7 @@ Each task lists the spec it implements and what "done" means.
 - [x] M1-3 Item pictures from the phone camera, compressed. *SPEC §8.* *Done:* an item with and without a picture both render.
 - [x] M1-4 Price change with a log (who, when, old, new). *SPEC §3.*
 - [x] M1-5 Excel template download and import with preview (added/updated/skipped, row errors). *SPEC §3.1B.* *Done:* the 500-row sample imports; re-upload creates no duplicates.
-- [ ] M1-6 Excel export of the price list and re-import of edited prices.
+- [x] M1-6 Excel export of the price list and re-import of edited prices.
 
 ## M2 Billing (local only)
 - [ ] M2-1 Bill model: lines with name and price snapshot, totals in paise. *PLAN §3.*
